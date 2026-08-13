@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Misi Login 50 Hari — Simulasi Koin</title>
+<style>
+  :root{
+    --teal:#0b9697;
+    --teal-dark:#087172;
+    --teal-soft:#e8f8f8;
+    --yellow:#ffc125;
+    --yellow-dark:#e7a40a;
+    --green:#57b84f;
+    --red:#d93d48;
+    --ink:#202729;
+    --muted:#667276;
+    --bg:#f3f5f4;
+    --card:#ffffff;
+    --line:#d7dddd;
+    --lock:#666d71;
+    --shadow:0 10px 28px rgba(24,39,45,.10);
+  }
+
+  *{box-sizing:border-box}
+
+  html,body{
+    margin:0;
+    padding:0;
+    background:#e8ecec;
+    color:var(--ink);
+    font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  }
+
+  body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    padding:18px;
+  }
+
+  button,input{font:inherit}
+
+  .app{
+    width:min(100%,470px);
+    min-height:100vh;
+    background:var(--bg);
+    overflow:hidden;
+    border-radius:32px;
+    box-shadow:0 24px 70px rgba(0,0,0,.18);
+    border:8px solid #181818;
+  }
+
+  .topbar{
+    height:72px;
+    background:linear-gradient(135deg,var(--teal),#087979);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:0 16px;
+  }
+
+  .round-btn{
+    width:42px;
+    height:42px;
+    border:0;
+    border-radius:50%;
+    background:#fff;
+    color:var(--teal-dark);
+    font-size:23px;
+    font-weight:1000;
+    display:grid;
+    place-items:center;
+    cursor:pointer;
+    box-shadow:0 4px 10px rgba(0,0,0,.14);
+  }
+
+  .top-title{
+    flex:1;
+    text-align:center;
+    font-size:20px;
+    font-weight:1000;
+    letter-spacing:.5px;
+  }
+
+  .hero{
+    position:relative;
+    overflow:hidden;
+    padding:18px;
+    background:linear-gradient(135deg,#ffb800,#ffd044);
+  }
+
+  .hero-grid{
+    display:grid;
+    grid-template-columns:110px 1fr;
+    gap:16px;
+    align-items:center;
+    position:relative;
+    z-index:1;
+  }
+
+  .earbuds{
+    width:110px;
+    height:110px;
+    border-radius:24px;
+    background:#fff;
+    display:grid;
+    place-items:center;
+    font-size:56px;
+    box-shadow:0 12px 26px rgba(120,75,0,.23);
+  }
+
+  .hero small{
+    display:block;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    color:#5c4600;
+    font-size:11px;
+    font-weight:1000;
+    margin-bottom:4px;
+  }
+
+  .hero h1{
+    margin:0 0 8px;
+    color:#fff;
+    text-shadow:0 2px 0 rgba(119,74,0,.22);
+    font-size:24px;
+    line-height:1.05;
+    font-weight:1000;
+  }
+
+  .price{
+    display:inline-block;
+    background:var(--red);
+    color:#fff;
+    font-size:25px;
+    line-height:1;
+    font-weight:1000;
+    border-radius:10px;
+    padding:10px 12px;
+    box-shadow:0 5px 0 rgba(127,28,36,.18);
+  }
+
+  .hero-note{
+    margin-top:9px;
+    padding:8px 10px;
+    border-radius:10px;
+    background:rgba(255,255,255,.78);
+    color:#554200;
+    font-size:12px;
+    line-height:1.35;
+    font-weight:800;
+  }
+
+  .content{padding:16px}
+
+  .section{margin-bottom:15px}
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:15px;
+    box-shadow:0 5px 15px rgba(0,0,0,.045);
+  }
+
+  .balance{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    align-items:flex-end;
+  }
+
+  .eyebrow{
+    color:var(--muted);
+    font-size:11px;
+    font-weight:1000;
+    letter-spacing:.9px;
+    text-transform:uppercase;
+  }
+
+  .balance-number{
+    margin-top:3px;
+    font-size:31px;
+    font-weight:1000;
+  }
+
+  .status-chip{
+    padding:8px 10px;
+    border-radius:12px;
+    font-size:11px;
+    font-weight:1000;
+    background:#f0f2f2;
+    color:#596366;
+    white-space:nowrap;
+  }
+
+  .status-chip.ready{
+    background:#fff5cd;
+    color:#7d5d00;
+  }
+
+  .status-chip.done{
+    background:#e7f7e4;
+    color:#2f7b29;
+  }
+
+  .progress-track{
+    width:100%;
+    height:11px;
+    margin-top:12px;
+    border-radius:999px;
+    background:#ebeeee;
+    overflow:hidden;
+  }
+
+  .progress-fill{
+    height:100%;
+    width:0;
+    background:linear-gradient(90deg,var(--yellow),#ef9d14);
+    border-radius:999px;
+    transition:width .25s ease;
+  }
+
+  .progress-line{
+    margin-top:7px;
+    display:flex;
+    justify-content:space-between;
+    color:var(--muted);
+    font-size:11px;
+    font-weight:850;
+  }
+
+  .rule-card{
+    background:#fff9e4;
+    border:1px solid #efd582;
+  }
+
+  .rule-title{
+    color:#755700;
+    font-size:14px;
+    font-weight:1000;
+    margin-bottom:3px;
+  }
+
+  .rule-text{
+    color:#4c4b38;
+    font-size:13px;
+    line-height:1.45;
+    font-weight:760;
+  }
+
+  .section-title{
+    margin:0 0 10px;
+    font-size:16px;
+    font-weight:1000;
+  }
+
+  .streak-grid{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:8px;
+  }
+
+  .day-card{
+    min-height:88px;
+    border:2px solid #c9cecd;
+    border-radius:13px;
+    background:#fafafa;
+    padding:8px 5px;
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    align-items:center;
+    cursor:default;
+  }
+
+  .day-card.available{
+    cursor:pointer;
+  }
+
+  .day-card.available:hover{
+    border-color:#9aa09f;
+  }
+
+  .day-card.current{
+    border-color:#e8ab11;
+    box-shadow:0 0 0 3px rgba(232,171,17,.15);
+  }
+
+  .day-card.completed{
+    border-color:#62b35c;
+    background:linear-gradient(#f6fff4,#f1f7f0);
+  }
+
+  .day-number{
+    font-size:12px;
+    font-weight:1000;
+  }
+
+  .day-icon{
+    width:30px;
+    height:30px;
+    border-radius:50%;
+    display:grid;
+    place-items:center;
+    background:#eef1f1;
+    color:#555d60;
+    font-size:15px;
+    font-weight:1000;
+  }
+
+  .day-card.completed .day-icon{
+    background:var(--green);
+    color:#fff;
+  }
+
+  .day-card.locked .day-icon{
+    border-radius:7px;
+    background:#646b6e;
+    color:#fff;
+    font-size:14px;
+  }
+
+  .day-value{
+    font-size:11px;
+    font-weight:1000;
+  }
+
+  .day-card.locked .day-value{
+    font-size:16px;
+    color:#52595b;
+  }
+
+  .explore{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:22px;
+    padding:16px;
+    box-shadow:var(--shadow);
+  }
+
+  .explore-title{
+    font-size:18px;
+    font-weight:1000;
+    margin:0;
+  }
+
+  .explore-subtitle{
+    margin:5px 0 13px;
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.45;
+    font-weight:750;
+  }
+
+  .slider-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+
+  input[type="range"]{
+    flex:1;
+    accent-color:var(--teal);
+    cursor:pointer;
+  }
+
+  .slider-value{
+    min-width:50px;
+    padding:8px 10px;
+    text-align:center;
+    background:var(--teal-soft);
+    color:var(--teal-dark);
+    border-radius:11px;
+    font-size:13px;
+    font-weight:1000;
+  }
+
+  .target-panel{
+    margin-top:14px;
+    padding:15px;
+    background:linear-gradient(135deg,#f5ffff,#eef8f8);
+    border:1px solid #bee1e1;
+    border-radius:18px;
+    text-align:center;
+  }
+
+  .target-label{
+    color:#637578;
+    font-size:11px;
+    font-weight:1000;
+    letter-spacing:.8px;
+    text-transform:uppercase;
+  }
+
+  .target-day{
+    margin-top:3px;
+    color:var(--teal-dark);
+    font-size:28px;
+    font-weight:1000;
+  }
+
+  .target-state{
+    margin-top:8px;
+    font-size:13px;
+    line-height:1.4;
+    font-weight:850;
+  }
+
+  .login-button{
+    margin-top:13px;
+    width:100%;
+    min-height:50px;
+    border:0;
+    border-radius:14px;
+    background:linear-gradient(135deg,var(--teal),#087878);
+    color:#fff;
+    font-size:15px;
+    font-weight:1000;
+    cursor:pointer;
+    box-shadow:0 6px 14px rgba(9,125,125,.22);
+    transition:transform .12s ease, opacity .12s ease;
+  }
+
+  .login-button:hover{transform:translateY(-1px)}
+  .login-button:disabled{
+    cursor:not-allowed;
+    opacity:.46;
+    transform:none;
+    box-shadow:none;
+  }
+
+  .login-result{
+    margin-top:11px;
+    padding:11px 12px;
+    border-radius:13px;
+    background:#f7f8f8;
+    border:1px solid #e0e4e4;
+    color:#3e4749;
+    font-size:12px;
+    line-height:1.45;
+    font-weight:800;
+    display:none;
+  }
+
+  .login-result.show{display:block}
+
+  .questions{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:15px;
+  }
+
+  .q{
+    display:flex;
+    align-items:flex-start;
+    gap:9px;
+    margin:10px 0;
+    font-size:13px;
+    line-height:1.42;
+    font-weight:800;
+  }
+
+  .q:first-of-type{margin-top:0}
+
+  .q-number{
+    flex:none;
+    width:26px;
+    height:26px;
+    border-radius:9px;
+    display:grid;
+    place-items:center;
+    color:var(--teal-dark);
+    background:var(--teal-soft);
+    font-size:12px;
+    font-weight:1000;
+  }
+
+  .note{
+    margin-top:12px;
+    padding:12px;
+    background:#fff8e8;
+    border:1px solid #ead6a3;
+    color:#6b571a;
+    border-radius:14px;
+    font-size:12px;
+    line-height:1.45;
+    font-weight:850;
+  }
+
+  .hint-check{
+    margin-top:11px;
+    display:flex;
+    align-items:flex-start;
+    gap:9px;
+    padding:11px 12px;
+    background:#f8f9f9;
+    border:1px solid #e0e3e3;
+    border-radius:13px;
+  }
+
+  .hint-check input{
+    margin-top:3px;
+    accent-color:var(--teal);
+  }
+
+  .hint-check label{
+    cursor:pointer;
+    font-size:12px;
+    line-height:1.35;
+    font-weight:800;
+  }
+
+  .hint{
+    display:none;
+    margin-top:10px;
+    padding:12px;
+    border-radius:13px;
+    background:#ebf8ff;
+    border:1px solid #bcddeb;
+    color:#1b5269;
+    font-size:12px;
+    line-height:1.45;
+    font-weight:820;
+  }
+
+  .hint.show{display:block}
+
+  .callout{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    background:linear-gradient(135deg,#fff0bd,#ffe49b);
+    border:1px solid #efd37c;
+    border-radius:20px;
+    padding:14px;
+  }
+
+  .star{
+    flex:none;
+    width:52px;
+    height:52px;
+    border-radius:50%;
+    display:grid;
+    place-items:center;
+    background:#13a1a5;
+    color:#fff;
+    font-size:26px;
+    border:5px solid #fff;
+    box-shadow:0 5px 12px rgba(0,0,0,.10);
+  }
+
+  .callout strong{
+    display:block;
+    color:#1c7779;
+    font-size:14px;
+    margin-bottom:3px;
+  }
+
+  .callout span{
+    display:block;
+    font-size:12px;
+    line-height:1.4;
+    font-weight:820;
+  }
+
+  .toast{
+    position:fixed;
+    left:50%;
+    bottom:22px;
+    transform:translate(-50%,20px);
+    opacity:0;
+    pointer-events:none;
+    background:#182225;
+    color:#fff;
+    border-radius:13px;
+    padding:11px 14px;
+    font-size:12px;
+    line-height:1.35;
+    font-weight:800;
+    width:min(90vw,420px);
+    text-align:center;
+    transition:.2s ease;
+    z-index:50;
+  }
+
+  .toast.show{
+    opacity:1;
+    transform:translate(-50%,0);
+  }
+
+  @media(max-width:440px){
+    body{padding:0}
+    .app{
+      width:100%;
+      border:0;
+      border-radius:0;
+    }
+    .hero-grid{grid-template-columns:92px 1fr}
+    .earbuds{width:92px;height:92px;font-size:46px}
+    .hero h1{font-size:21px}
+    .price{font-size:23px}
+  }
+</style>
+</head>
+
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <button class="round-btn" type="button" aria-label="Kembali"
+            onclick="showToast('Ini adalah simulasi misi login harian.')">‹</button>
+    <div class="top-title">MISI LOGIN 50 HARI</div>
+    <button class="round-btn" type="button" aria-label="Petunjuk"
+            onclick="showToast('Pilih hari 1–5, lalu tekan LOGIN untuk menerima koin hari tersebut.')">?</button>
+  </header>
+
+  <section class="hero">
+    <div class="hero-grid">
+      <div class="earbuds" aria-hidden="true">🎧</div>
+      <div>
+        <small>Event hadiah</small>
+        <h1>Earphone Gaming</h1>
+        <div class="price">4.550 KOIN</div>
+        <div class="hero-note">
+          Pertahankan streak login. Misi berlangsung hingga hari ke-50.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="content">
+
+    <section class="section card">
+      <div class="balance">
+        <div>
+          <div class="eyebrow">Saldo koin saat ini</div>
+          <div class="balance-number" id="balance">0 Koin</div>
+        </div>
+        <div class="status-chip ready" id="statusChip">Belum login</div>
+      </div>
+
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+
+      <div class="progress-line">
+        <span id="progressText">Hari 0 dari 50</span>
+        <span>Target 4.550</span>
+      </div>
+    </section>
+
+    <section class="section card rule-card">
+      <div class="rule-title">ATURAN MISI</div>
+      <div class="rule-text">
+        Saldo dimulai dari <strong>0 koin</strong>. Setiap kali berhasil login, saldo bertambah
+        mengikuti pola hadiah misi
+      </div>
+    </section>
+
+    <section class="section card">
+      <div class="section-title">Progres Login 50 Hari</div>
+      <div class="streak-grid" id="streakGrid"></div>
+    </section>
+
+    <section class="section explore">
+      <h2 class="explore-title">🔎 Eksplorasi Login</h2>
+      <p class="explore-subtitle">
+        Mulai dari Hari 1. Geser slider untuk memilih hari. Setelah hari dipilih,
+        tekan tombol <strong>LOGIN</strong> untuk menjalankan simulasi dan mengubah saldo.
+        Pada versi ini, eksplorasi dibatasi sampai Hari 5 agar pola awal dapat diamati.
+      </p>
+
+      <div class="slider-row">
+        <input id="daySlider" type="range" min="1" max="5" step="1" value="1"
+               aria-label="Pilih hari login dari 1 sampai 5">
+        <div class="slider-value" id="sliderValue">1</div>
+      </div>
+
+      <div class="target-panel">
+        <div class="target-label">Hari yang dipilih</div>
+        <div class="target-day" id="targetDay">Hari ke-1</div>
+        <div class="target-state" id="targetState">
+          Saldo setelah login hari ini belum diperbarui.
+        </div>
+
+        <button class="login-button" id="loginButton" type="button">
+          LOGIN HARI KE-1
+        </button>
+
+        <div class="login-result" id="loginResult"></div>
+      </div>
+    </section>
+
+    <section class="section questions">
+      <div class="section-title">AMATI, PIKIRKAN, DAN CATAT</div>
+
+      <div class="q">
+        <div class="q-number">1</div>
+        <div>Mulai dari saldo 0 koin. Apa yang terjadi pada saldo setelah kamu menekan <strong>LOGIN</strong> pada Hari 1?</div>
+      </div>
+
+      <div class="q">
+        <div class="q-number">2</div>
+        <div>Catat saldo setelah login pada Hari 1, Hari 2, Hari 3, Hari 4, dan Hari 5.</div>
+      </div>
+
+      <div class="q">
+        <div class="q-number">3</div>
+        <div>Bandingkan saldo pada dua hari yang berurutan. Berapa kenaikan saldo dari satu hari ke hari berikutnya?</div>
+      </div>
+
+      <div class="q">
+        <div class="q-number">4</div>
+        <div>Apakah kenaikan saldo dari satu hari ke hari berikutnya tetap? Jelaskan berdasarkan hasil pengamatanmu.</div>
+      </div>
+
+      <div class="q">
+        <div class="q-number">5</div>
+        <div>Jika pola saldo tersebut terus berlanjut, bagaimana kamu dapat menentukan saldo KOIN pada hari ke-50? Apakah kita harus login sampai hari ke-50 untuk mendapatkan earphone gaming?</div>
+      </div>
+
+      <div class="note">
+        ✎ Tuliskan hasil pengamatanmu di buku catatan. Fokus pada <strong>data, perubahan,
+        pola, dan dugaan cara menentukan saldo pada hari berikutnya</strong>.
+      </div>
+
+    </section>
+
+    <section class="section callout">
+      <div class="star">★</div>
+      <div>
+        <strong>Misi pembelajaran</strong>
+        <span>
+          Amati perubahan saldo melalui simulasi. Temukan formula pola dari data yang kamu peroleh.
+        </span>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const DAY_LIMIT = 5;
+
+  // Total saldo setelah setiap login pada lima hari pertama.
+  // Saldo awal = 0.
+  // Hari 1 = 50, lalu saldo bertambah 100 setiap hari:
+  // 50, 150, 250, 350, 450.
+  const balanceAfterLogin = {
+    1: 50,
+    2: 150,
+    3: 250,
+    4: 350,
+    5: 450
+  };
+
+  const loginReward = {
+    1: 50,
+    2: 100,
+    3: 100,
+    4: 100,
+    5: 100
+  };
+
+  let currentDay = 0;
+  let selectedDay = 1;
+
+  const balanceEl = document.getElementById("balance");
+  const statusChip = document.getElementById("statusChip");
+  const progressFill = document.getElementById("progressFill");
+  const progressText = document.getElementById("progressText");
+  const streakGrid = document.getElementById("streakGrid");
+
+  const slider = document.getElementById("daySlider");
+  const sliderValue = document.getElementById("sliderValue");
+  const targetDay = document.getElementById("targetDay");
+  const targetState = document.getElementById("targetState");
+  const loginButton = document.getElementById("loginButton");
+  const loginResult = document.getElementById("loginResult");
+
+
+  function formatKoin(value){
+    return value.toLocaleString("id-ID") + " Koin";
+  }
+
+  function updateBalanceView(){
+    const balance = currentDay === 0 ? 0 : balanceAfterLogin[currentDay];
+    balanceEl.textContent = formatKoin(balance);
+    progressText.textContent = "Hari " + currentDay + " dari 50";
+    progressFill.style.width = ((currentDay / 50) * 100).toFixed(2) + "%";
+
+    if(currentDay === 0){
+      statusChip.className = "status-chip ready";
+      statusChip.textContent = "Belum login";
+    }else{
+      statusChip.className = "status-chip done";
+      statusChip.textContent = "Login tersimpan";
+    }
+  }
+
+  function updateTargetView(){
+    selectedDay = Number(slider.value);
+
+    sliderValue.textContent = selectedDay;
+    targetDay.textContent = "Hari ke-" + selectedDay;
+    loginButton.textContent = "LOGIN HARI KE-" + selectedDay;
+
+    if(selectedDay <= currentDay){
+      targetState.textContent =
+        "Hari ini sudah login. Saldo total: " +
+        formatKoin(balanceAfterLogin[selectedDay]) + ".";
+      loginButton.disabled = true;
+      loginResult.className = "login-result show";
+      loginResult.textContent =
+        "Login hari ke-" + selectedDay +
+        " sudah dilakukan. Pilih hari berikutnya untuk melanjutkan.";
+    }else{
+      targetState.textContent =
+        "Tekan LOGIN untuk menerima koin hari ke-" + selectedDay +
+        " dan memperbarui saldo total.";
+      loginButton.disabled = selectedDay !== currentDay + 1;
+      loginResult.className = "login-result";
+      loginResult.textContent = "";
+
+      if(selectedDay !== currentDay + 1){
+        targetState.textContent =
+          "Login harus dilakukan berurutan. Selesaikan Hari ke-" +
+          (currentDay + 1) + " terlebih dahulu.";
+      }
+    }
+
+    renderStreak();
+  }
+
+  function renderStreak(){
+    streakGrid.innerHTML = "";
+
+    for(let day = 1; day <= 50; day++){
+      const card = document.createElement("div");
+      card.className = "day-card";
+
+      if(day <= currentDay){
+        card.classList.add("completed");
+      }else if(day === currentDay + 1){
+        card.classList.add("available");
+      }else{
+        card.classList.add("locked");
+      }
+
+      if(day === selectedDay){
+        card.classList.add("current");
+      }
+
+      const number = document.createElement("div");
+      number.className = "day-number";
+      number.textContent = "Hari " + day;
+
+      const icon = document.createElement("div");
+      icon.className = "day-icon";
+
+      const value = document.createElement("div");
+      value.className = "day-value";
+
+      if(day <= currentDay){
+        icon.textContent = "✓";
+        value.textContent = "+" + loginReward[day].toLocaleString("id-ID");
+      }else if(day === currentDay + 1){
+        icon.textContent = "›";
+        value.textContent = "+?";
+      }else{
+        icon.textContent = "🔒";
+        value.textContent = "?";
+      }
+
+      card.append(number, icon, value);
+
+      // Hanya lima hari pertama yang dapat dipilih pada slider.
+      if(day <= DAY_LIMIT){
+        card.classList.add("available");
+        card.addEventListener("click", () => {
+          if(day <= DAY_LIMIT){
+            slider.value = day;
+            updateTargetView();
+          }
+        });
+      }
+
+      streakGrid.appendChild(card);
+    }
+  }
+
+  loginButton.addEventListener("click", () => {
+    const day = selectedDay;
+
+    // Wajib berurutan: 1 -> 2 -> 3 -> 4 -> 5.
+    if(day !== currentDay + 1){
+      showToast("Login harus dilakukan secara berurutan.");
+      return;
+    }
+
+    currentDay = day;
+    updateBalanceView();
+    updateTargetView();
+
+    loginResult.className = "login-result show";
+    loginResult.innerHTML =
+      "<strong>Login berhasil!</strong><br>" +
+      "Koin yang diperoleh hari ini: +" +
+      loginReward[day].toLocaleString("id-ID") +
+      " koin.<br>" +
+      "Saldo total sekarang: <strong>" +
+      formatKoin(balanceAfterLogin[day]) +
+      "</strong>.";
+
+    showToast(
+      "Hari ke-" + day +
+      " berhasil login. Saldo menjadi " +
+      formatKoin(balanceAfterLogin[day]) + "."
+    );
+  });
+
+  slider.addEventListener("input", updateTargetView);
+
+  function showToast(message){
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.classList.add("show");
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(
+      () => toast.classList.remove("show"),
+      2600
+    );
+  }
+
+  // Keadaan awal:
+  // saldo 0, belum login, slider di Hari 1.
+  updateBalanceView();
+  updateTargetView();
+</script>
+</body>
+</html>
