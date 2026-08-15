@@ -700,13 +700,6 @@
     const MAX_DAYS = 50;
     const EXPLORATION_MAX = 5;
 
-    /*
-     * Nilai hadiah tidak dibuat-buat di sini karena gambar hanya
-     * menunjukkan "+?" dan tidak memberikan nominal tiap hari.
-     * Simulasi tetap berfungsi untuk memilih hari dan mengubah
-     * status login tanpa mengarang pola hadiah.
-     */
-
     let selectedDay = 1;
     let loggedDays = new Set();
     let currentBalance = 0;
@@ -721,17 +714,62 @@
     const progressBar = document.getElementById("progressBar");
     const progressDay = document.getElementById("progressDay");
 
+    /*
+     * Menentukan hari berikutnya yang boleh dibuka.
+     *
+     * Awalnya:
+     * loggedDays.size = 0
+     * maka hanya Hari 1 yang terbuka.
+     *
+     * Setelah Hari 1 login:
+     * loggedDays.size = 1
+     * maka Hari 2 terbuka.
+     *
+     * Dan seterusnya.
+     */
+    function getNextAvailableDay() {
+        return Math.min(loggedDays.size + 1, EXPLORATION_MAX);
+    }
+
+    /*
+     * Menentukan apakah suatu hari boleh dipilih.
+     */
+    function isDayAvailable(dayNumber) {
+        const nextAvailableDay = getNextAvailableDay();
+
+        /*
+         * Hari yang sudah login tetap dapat dilihat,
+         * tetapi hari yang belum waktunya tidak dapat dipilih.
+         */
+        return (
+            dayNumber <= loggedDays.size ||
+            dayNumber === nextAvailableDay
+        );
+    }
+
+    /*
+     * Membuat kartu setiap hari.
+     */
     function createDayCard(dayNumber) {
         const day = document.createElement("div");
         day.className = "day";
 
-        const isAvailable = dayNumber <= EXPLORATION_MAX;
+        const available = isDayAvailable(dayNumber);
+        const completed = loggedDays.has(dayNumber);
 
-        if (isAvailable) {
+        /*
+         * Hari hanya dapat diklik jika:
+         * - sudah selesai login, atau
+         * - merupakan hari berikutnya yang sudah terbuka.
+         */
+        if (available) {
             day.classList.add("available");
             day.setAttribute("role", "button");
             day.setAttribute("tabindex", "0");
-            day.setAttribute("aria-label", "Pilih Hari " + dayNumber);
+            day.setAttribute(
+                "aria-label",
+                "Pilih Hari " + dayNumber
+            );
 
             day.addEventListener("click", function () {
                 selectDay(dayNumber);
@@ -751,7 +789,19 @@
 
         const icon = document.createElement("div");
         icon.className = "lock";
-        icon.textContent = isAvailable ? "›" : "🔒";
+
+        /*
+         * Hari yang sudah login = centang.
+         * Hari yang tersedia = tanda panah.
+         * Hari yang masih terkunci = gembok.
+         */
+        if (completed) {
+            icon.textContent = "✓";
+        } else if (available) {
+            icon.textContent = "›";
+        } else {
+            icon.textContent = "🔒";
+        }
 
         const question = document.createElement("div");
         question.className = "day-question";
@@ -764,6 +814,9 @@
         return day;
     }
 
+    /*
+     * Menampilkan seluruh hari.
+     */
     function renderDays() {
         daysGrid.innerHTML = "";
 
@@ -776,15 +829,30 @@
 
             if (loggedDays.has(day)) {
                 dayCard.classList.add("completed");
-                dayCard.querySelector(".lock").textContent = "✓";
             }
 
             daysGrid.appendChild(dayCard);
         }
     }
 
+    /*
+     * Memilih hari.
+     *
+     * Hari yang belum terbuka tidak dapat dipilih.
+     */
     function selectDay(dayNumber) {
-        if (dayNumber < 1 || dayNumber > EXPLORATION_MAX) {
+        const nextAvailableDay = getNextAvailableDay();
+
+        /*
+         * Jangan izinkan memilih hari yang:
+         * - melebihi batas eksplorasi, atau
+         * - melompati hari berikutnya.
+         */
+        if (
+            dayNumber < 1 ||
+            dayNumber > EXPLORATION_MAX ||
+            dayNumber > nextAvailableDay
+        ) {
             return;
         }
 
@@ -797,69 +865,207 @@
         const logged = loggedDays.has(dayNumber);
 
         if (logged) {
-            loginButton.textContent = "SUDAH LOGIN HARI KE-" + dayNumber;
+            loginButton.textContent =
+                "SUDAH LOGIN HARI KE-" + dayNumber;
+
             loginButton.disabled = true;
+
+            document.querySelector(".selected-instruction").textContent =
+                "Hari ini sudah berhasil diselesaikan.";
         } else {
-            loginButton.textContent = "LOGIN HARI KE-" + dayNumber;
+            loginButton.textContent =
+                "LOGIN HARI KE-" + dayNumber;
+
             loginButton.disabled = false;
+
+            document.querySelector(".selected-instruction").textContent =
+                "Tekan LOGIN untuk menerima koin hari ke-" +
+                dayNumber +
+                " dan memperbarui saldo total.";
         }
 
         renderDays();
+        updateSlider();
     }
 
+    /*
+     * Mengatur slider agar siswa tidak dapat
+     * melompati hari yang belum dibuka.
+     */
+    function updateSlider() {
+        const nextAvailableDay = getNextAvailableDay();
+
+        daySlider.max = String(
+            Math.min(nextAvailableDay, EXPLORATION_MAX)
+        );
+
+        /*
+         * Pastikan nilai slider tidak berada
+         * di luar batas yang diizinkan.
+         */
+        if (Number(daySlider.value) > Number(daySlider.max)) {
+            daySlider.value = daySlider.max;
+        }
+    }
+
+    /*
+     * Memperbarui saldo dan progres.
+     */
     function updateProgress() {
         const completedCount = loggedDays.size;
 
-        progressDay.textContent = "Hari " + completedCount + " dari 50";
-        progressBar.style.width = ((completedCount / MAX_DAYS) * 100) + "%";
+        progressDay.textContent =
+            "Hari " + completedCount + " dari 50";
 
-        balanceNumber.textContent = currentBalance + " Koin";
+        progressBar.style.width =
+            ((completedCount / MAX_DAYS) * 100) + "%";
 
-        statusPill.textContent = completedCount > 0
-            ? "Sudah login"
-            : "Belum login";
+        balanceNumber.textContent =
+            currentBalance + " Koin";
+
+        statusPill.textContent =
+            completedCount > 0
+                ? "Sudah login"
+                : "Belum login";
     }
 
+    /*
+     * Proses login.
+     */
     function loginSelectedDay() {
+
+        /*
+         * Tidak boleh login dua kali pada hari yang sama.
+         */
         if (loggedDays.has(selectedDay)) {
             return;
         }
 
         /*
-         * Tidak mengarang nominal koin karena nominal hadiah
-         * tiap hari tidak terlihat pada sumber gambar.
-         *
-         * Status login dan progres tetap dijalankan.
+         * Pastikan siswa hanya dapat login
+         * pada hari berikutnya yang sah.
+         */
+        const nextAvailableDay = getNextAvailableDay();
+
+        if (selectedDay !== nextAvailableDay) {
+            return;
+        }
+
+        /*
+         * Menandai hari sebagai telah selesai.
          */
         loggedDays.add(selectedDay);
 
         updateProgress();
-        selectDay(selectedDay);
 
         /*
-         * Pesan ringan hanya untuk memberikan feedback interaksi.
-         * Tidak menambah informasi baru pada antarmuka utama.
+         * Setelah login, hari berikutnya otomatis terbuka.
          */
-        loginButton.textContent = "SUDAH LOGIN HARI KE-" + selectedDay;
-        loginButton.disabled = true;
+        const nextDay = getNextAvailableDay();
+
+        /*
+         * Jika masih ada hari berikutnya,
+         * langsung arahkan simulasi ke hari tersebut.
+         */
+        if (nextDay <= EXPLORATION_MAX) {
+            selectedDay = nextDay;
+
+            daySlider.value = String(nextDay);
+            selectedIndex.textContent = String(nextDay);
+            selectedDayTitle.textContent =
+                "Hari ke-" + nextDay;
+
+            loginButton.textContent =
+                "LOGIN HARI KE-" + nextDay;
+
+            loginButton.disabled = false;
+
+            document.querySelector(".selected-instruction").textContent =
+                "Tekan LOGIN untuk menerima koin hari ke-" +
+                nextDay +
+                " dan memperbarui saldo total.";
+        } else {
+            /*
+             * Jika eksplorasi sudah mencapai Hari 5,
+             * pertahankan Hari 5 sebagai hari terakhir.
+             */
+            selectedDay = EXPLORATION_MAX;
+
+            daySlider.value = String(EXPLORATION_MAX);
+            selectedIndex.textContent =
+                String(EXPLORATION_MAX);
+            selectedDayTitle.textContent =
+                "Hari ke-" + EXPLORATION_MAX;
+
+            loginButton.textContent =
+                "SUDAH LOGIN HARI KE-" + EXPLORATION_MAX;
+
+            loginButton.disabled = true;
+
+            document.querySelector(".selected-instruction").textContent =
+                "Seluruh hari yang tersedia dalam simulasi telah diselesaikan.";
+        }
+
+        updateSlider();
+        renderDays();
     }
 
+    /*
+     * Slider.
+     *
+     * Slider hanya bergerak sampai hari
+     * yang sudah terbuka.
+     */
     daySlider.addEventListener("input", function () {
-        selectDay(Number(this.value));
+        const requestedDay = Number(this.value);
+        const nextAvailableDay = getNextAvailableDay();
+
+        if (requestedDay > nextAvailableDay) {
+            this.value = String(nextAvailableDay);
+            selectDay(nextAvailableDay);
+            return;
+        }
+
+        selectDay(requestedDay);
     });
 
-    loginButton.addEventListener("click", loginSelectedDay);
+    /*
+     * Tombol login.
+     */
+    loginButton.addEventListener(
+        "click",
+        loginSelectedDay
+    );
 
-    document.getElementById("backButton").addEventListener("click", function () {
-        window.history.back();
-    });
+    /*
+     * Tombol kembali.
+     */
+    document
+        .getElementById("backButton")
+        .addEventListener("click", function () {
+            window.history.back();
+        });
 
-    document.getElementById("helpButton").addEventListener("click", function () {
-        alert(
-            "Pertahankan streak login. Misi berlangsung hingga hari ke-50."
-        );
-    });
+    /*
+     * Tombol informasi.
+     */
+    document
+        .getElementById("helpButton")
+        .addEventListener("click", function () {
+            alert(
+                "Login harus dilakukan secara berurutan mulai dari Hari 1."
+            );
+        });
 
+    /*
+     * Inisialisasi awal.
+     *
+     * Kondisi pertama:
+     * - Hari 1 terbuka.
+     * - Hari 2–5 terkunci.
+     * - Slider hanya sampai Hari 1.
+     */
+    updateSlider();
     renderDays();
     updateProgress();
     selectDay(1);
