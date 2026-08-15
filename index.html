@@ -1,949 +1,871 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Misi Login 50 Hari — Simulasi Koin</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Misi Login 50 Hari</title>
+
 <style>
-  :root{
-    --teal:#0b9697;
-    --teal-dark:#087172;
-    --teal-soft:#e8f8f8;
-    --yellow:#ffc125;
-    --yellow-dark:#e7a40a;
-    --green:#57b84f;
-    --red:#d93d48;
-    --ink:#202729;
-    --muted:#667276;
-    --bg:#f3f5f4;
-    --card:#ffffff;
-    --line:#d7dddd;
-    --lock:#666d71;
-    --shadow:0 10px 28px rgba(24,39,45,.10);
-  }
-
-  *{box-sizing:border-box}
-
-  html,body{
-    margin:0;
-    padding:0;
-    background:#e8ecec;
-    color:var(--ink);
-    font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-  }
-
-  body{
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:flex-start;
-    padding:18px;
-  }
-
-  button,input{font:inherit}
-
-  .app{
-    width:min(100%,470px);
-    min-height:100vh;
-    background:var(--bg);
-    overflow:hidden;
-    border-radius:32px;
-    box-shadow:0 24px 70px rgba(0,0,0,.18);
-    border:8px solid #181818;
-  }
-
-  .topbar{
-    height:72px;
-    background:linear-gradient(135deg,var(--teal),#087979);
-    color:#fff;
-    display:flex;
-    align-items:center;
-    gap:12px;
-    padding:0 16px;
-  }
-
-  .round-btn{
-    width:42px;
-    height:42px;
-    border:0;
-    border-radius:50%;
-    background:#fff;
-    color:var(--teal-dark);
-    font-size:23px;
-    font-weight:1000;
-    display:grid;
-    place-items:center;
-    cursor:pointer;
-    box-shadow:0 4px 10px rgba(0,0,0,.14);
-  }
-
-  .top-title{
-    flex:1;
-    text-align:center;
-    font-size:20px;
-    font-weight:1000;
-    letter-spacing:.5px;
-  }
-
-  .hero{
-    position:relative;
-    overflow:hidden;
-    padding:18px;
-    background:linear-gradient(135deg,#ffb800,#ffd044);
-  }
-
-  .hero-grid{
-    display:grid;
-    grid-template-columns:110px 1fr;
-    gap:16px;
-    align-items:center;
-    position:relative;
-    z-index:1;
-  }
-
-  .earbuds{
-    width:110px;
-    height:110px;
-    border-radius:24px;
-    background:#fff;
-    display:grid;
-    place-items:center;
-    font-size:56px;
-    box-shadow:0 12px 26px rgba(120,75,0,.23);
-  }
-
-  .hero small{
-    display:block;
-    text-transform:uppercase;
-    letter-spacing:1px;
-    color:#5c4600;
-    font-size:11px;
-    font-weight:1000;
-    margin-bottom:4px;
-  }
-
-  .hero h1{
-    margin:0 0 8px;
-    color:#fff;
-    text-shadow:0 2px 0 rgba(119,74,0,.22);
-    font-size:24px;
-    line-height:1.05;
-    font-weight:1000;
-  }
-
-  .price{
-    display:inline-block;
-    background:var(--red);
-    color:#fff;
-    font-size:25px;
-    line-height:1;
-    font-weight:1000;
-    border-radius:10px;
-    padding:10px 12px;
-    box-shadow:0 5px 0 rgba(127,28,36,.18);
-  }
-
-  .hero-note{
-    margin-top:9px;
-    padding:8px 10px;
-    border-radius:10px;
-    background:rgba(255,255,255,.78);
-    color:#554200;
-    font-size:12px;
-    line-height:1.35;
-    font-weight:800;
-  }
-
-  .content{padding:16px}
-
-  .section{margin-bottom:15px}
-
-  .card{
-    background:var(--card);
-    border:1px solid var(--line);
-    border-radius:18px;
-    padding:15px;
-    box-shadow:0 5px 15px rgba(0,0,0,.045);
-  }
-
-  .balance{
-    display:flex;
-    justify-content:space-between;
-    gap:12px;
-    align-items:flex-end;
-  }
-
-  .eyebrow{
-    color:var(--muted);
-    font-size:11px;
-    font-weight:1000;
-    letter-spacing:.9px;
-    text-transform:uppercase;
-  }
-
-  .balance-number{
-    margin-top:3px;
-    font-size:31px;
-    font-weight:1000;
-  }
-
-  .status-chip{
-    padding:8px 10px;
-    border-radius:12px;
-    font-size:11px;
-    font-weight:1000;
-    background:#f0f2f2;
-    color:#596366;
-    white-space:nowrap;
-  }
-
-  .status-chip.ready{
-    background:#fff5cd;
-    color:#7d5d00;
-  }
-
-  .status-chip.done{
-    background:#e7f7e4;
-    color:#2f7b29;
-  }
-
-  .progress-track{
-    width:100%;
-    height:11px;
-    margin-top:12px;
-    border-radius:999px;
-    background:#ebeeee;
-    overflow:hidden;
-  }
-
-  .progress-fill{
-    height:100%;
-    width:0;
-    background:linear-gradient(90deg,var(--yellow),#ef9d14);
-    border-radius:999px;
-    transition:width .25s ease;
-  }
-
-  .progress-line{
-    margin-top:7px;
-    display:flex;
-    justify-content:space-between;
-    color:var(--muted);
-    font-size:11px;
-    font-weight:850;
-  }
-
-  .rule-card{
-    background:#fff9e4;
-    border:1px solid #efd582;
-  }
-
-  .rule-title{
-    color:#755700;
-    font-size:14px;
-    font-weight:1000;
-    margin-bottom:3px;
-  }
-
-  .rule-text{
-    color:#4c4b38;
-    font-size:13px;
-    line-height:1.45;
-    font-weight:760;
-  }
-
-  .section-title{
-    margin:0 0 10px;
-    font-size:16px;
-    font-weight:1000;
-  }
-
-  .streak-grid{
-    display:grid;
-    grid-template-columns:repeat(5,1fr);
-    gap:8px;
-  }
-
-  .day-card{
-    min-height:88px;
-    border:2px solid #c9cecd;
-    border-radius:13px;
-    background:#fafafa;
-    padding:8px 5px;
-    text-align:center;
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
-    align-items:center;
-    cursor:default;
-  }
-
-  .day-card.available{
-    cursor:pointer;
-  }
-
-  .day-card.available:hover{
-    border-color:#9aa09f;
-  }
-
-  .day-card.current{
-    border-color:#e8ab11;
-    box-shadow:0 0 0 3px rgba(232,171,17,.15);
-  }
-
-  .day-card.completed{
-    border-color:#62b35c;
-    background:linear-gradient(#f6fff4,#f1f7f0);
-  }
-
-  .day-number{
-    font-size:12px;
-    font-weight:1000;
-  }
-
-  .day-icon{
-    width:30px;
-    height:30px;
-    border-radius:50%;
-    display:grid;
-    place-items:center;
-    background:#eef1f1;
-    color:#555d60;
-    font-size:15px;
-    font-weight:1000;
-  }
-
-  .day-card.completed .day-icon{
-    background:var(--green);
-    color:#fff;
-  }
-
-  .day-card.locked .day-icon{
-    border-radius:7px;
-    background:#646b6e;
-    color:#fff;
-    font-size:14px;
-  }
-
-  .day-value{
-    font-size:11px;
-    font-weight:1000;
-  }
-
-  .day-card.locked .day-value{
-    font-size:16px;
-    color:#52595b;
-  }
-
-  .explore{
-    background:#fff;
-    border:1px solid var(--line);
-    border-radius:22px;
-    padding:16px;
-    box-shadow:var(--shadow);
-  }
-
-  .explore-title{
-    font-size:18px;
-    font-weight:1000;
-    margin:0;
-  }
-
-  .explore-subtitle{
-    margin:5px 0 13px;
-    color:var(--muted);
-    font-size:12px;
-    line-height:1.45;
-    font-weight:750;
-  }
-
-  .slider-row{
-    display:flex;
-    align-items:center;
-    gap:10px;
-  }
-
-  input[type="range"]{
-    flex:1;
-    accent-color:var(--teal);
-    cursor:pointer;
-  }
-
-  .slider-value{
-    min-width:50px;
-    padding:8px 10px;
-    text-align:center;
-    background:var(--teal-soft);
-    color:var(--teal-dark);
-    border-radius:11px;
-    font-size:13px;
-    font-weight:1000;
-  }
-
-  .target-panel{
-    margin-top:14px;
-    padding:15px;
-    background:linear-gradient(135deg,#f5ffff,#eef8f8);
-    border:1px solid #bee1e1;
-    border-radius:18px;
-    text-align:center;
-  }
-
-  .target-label{
-    color:#637578;
-    font-size:11px;
-    font-weight:1000;
-    letter-spacing:.8px;
-    text-transform:uppercase;
-  }
-
-  .target-day{
-    margin-top:3px;
-    color:var(--teal-dark);
-    font-size:28px;
-    font-weight:1000;
-  }
-
-  .target-state{
-    margin-top:8px;
-    font-size:13px;
-    line-height:1.4;
-    font-weight:850;
-  }
-
-  .login-button{
-    margin-top:13px;
-    width:100%;
-    min-height:50px;
-    border:0;
-    border-radius:14px;
-    background:linear-gradient(135deg,var(--teal),#087878);
-    color:#fff;
-    font-size:15px;
-    font-weight:1000;
-    cursor:pointer;
-    box-shadow:0 6px 14px rgba(9,125,125,.22);
-    transition:transform .12s ease, opacity .12s ease;
-  }
-
-  .login-button:hover{transform:translateY(-1px)}
-  .login-button:disabled{
-    cursor:not-allowed;
-    opacity:.46;
-    transform:none;
-    box-shadow:none;
-  }
-
-  .login-result{
-    margin-top:11px;
-    padding:11px 12px;
-    border-radius:13px;
-    background:#f7f8f8;
-    border:1px solid #e0e4e4;
-    color:#3e4749;
-    font-size:12px;
-    line-height:1.45;
-    font-weight:800;
-    display:none;
-  }
-
-  .login-result.show{display:block}
-
-  .questions{
-    background:#fff;
-    border:1px solid var(--line);
-    border-radius:18px;
-    padding:15px;
-  }
-
-  .q{
-    display:flex;
-    align-items:flex-start;
-    gap:9px;
-    margin:10px 0;
-    font-size:13px;
-    line-height:1.42;
-    font-weight:800;
-  }
-
-  .q:first-of-type{margin-top:0}
-
-  .q-number{
-    flex:none;
-    width:26px;
-    height:26px;
-    border-radius:9px;
-    display:grid;
-    place-items:center;
-    color:var(--teal-dark);
-    background:var(--teal-soft);
-    font-size:12px;
-    font-weight:1000;
-  }
-
-  .note{
-    margin-top:12px;
-    padding:12px;
-    background:#fff8e8;
-    border:1px solid #ead6a3;
-    color:#6b571a;
-    border-radius:14px;
-    font-size:12px;
-    line-height:1.45;
-    font-weight:850;
-  }
-
-  .hint-check{
-    margin-top:11px;
-    display:flex;
-    align-items:flex-start;
-    gap:9px;
-    padding:11px 12px;
-    background:#f8f9f9;
-    border:1px solid #e0e3e3;
-    border-radius:13px;
-  }
-
-  .hint-check input{
-    margin-top:3px;
-    accent-color:var(--teal);
-  }
-
-  .hint-check label{
-    cursor:pointer;
-    font-size:12px;
-    line-height:1.35;
-    font-weight:800;
-  }
-
-  .hint{
-    display:none;
-    margin-top:10px;
-    padding:12px;
-    border-radius:13px;
-    background:#ebf8ff;
-    border:1px solid #bcddeb;
-    color:#1b5269;
-    font-size:12px;
-    line-height:1.45;
-    font-weight:820;
-  }
-
-  .hint.show{display:block}
-
-  .callout{
-    display:flex;
-    gap:12px;
-    align-items:center;
-    background:linear-gradient(135deg,#fff0bd,#ffe49b);
-    border:1px solid #efd37c;
-    border-radius:20px;
-    padding:14px;
-  }
-
-  .star{
-    flex:none;
-    width:52px;
-    height:52px;
-    border-radius:50%;
-    display:grid;
-    place-items:center;
-    background:#13a1a5;
-    color:#fff;
-    font-size:26px;
-    border:5px solid #fff;
-    box-shadow:0 5px 12px rgba(0,0,0,.10);
-  }
-
-  .callout strong{
-    display:block;
-    color:#1c7779;
-    font-size:14px;
-    margin-bottom:3px;
-  }
-
-  .callout span{
-    display:block;
-    font-size:12px;
-    line-height:1.4;
-    font-weight:820;
-  }
-
-  .toast{
-    position:fixed;
-    left:50%;
-    bottom:22px;
-    transform:translate(-50%,20px);
-    opacity:0;
-    pointer-events:none;
-    background:#182225;
-    color:#fff;
-    border-radius:13px;
-    padding:11px 14px;
-    font-size:12px;
-    line-height:1.35;
-    font-weight:800;
-    width:min(90vw,420px);
-    text-align:center;
-    transition:.2s ease;
-    z-index:50;
-  }
-
-  .toast.show{
-    opacity:1;
-    transform:translate(-50%,0);
-  }
-
-  @media(max-width:440px){
-    body{padding:0}
-    .app{
-      width:100%;
-      border:0;
-      border-radius:0;
+    * {
+        box-sizing: border-box;
     }
-    .hero-grid{grid-template-columns:92px 1fr}
-    .earbuds{width:92px;height:92px;font-size:46px}
-    .hero h1{font-size:21px}
-    .price{font-size:23px}
-  }
+
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+        min-height: 100%;
+        font-family: Arial, Helvetica, sans-serif;
+        background: #f1f3f4;
+        color: #17212b;
+    }
+
+    body {
+        display: flex;
+        justify-content: center;
+        padding: 20px 10px;
+    }
+
+    button {
+        font-family: inherit;
+    }
+
+    .app {
+        width: 100%;
+        max-width: 430px;
+        background: #f7f7f7;
+        border: 8px solid #202020;
+        border-radius: 30px;
+        overflow: hidden;
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+    }
+
+    /* =========================
+       HEADER
+    ========================== */
+    .topbar {
+        min-height: 72px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 12px 16px;
+        background: #0b9698;
+        color: #ffffff;
+    }
+
+    .circle-btn {
+        width: 43px;
+        height: 43px;
+        flex: 0 0 43px;
+        border: 0;
+        border-radius: 50%;
+        background: #ffffff;
+        color: #0b7f82;
+        font-size: 25px;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    }
+
+    .circle-btn:active {
+        transform: scale(0.96);
+    }
+
+    .topbar-title {
+        flex: 1;
+        text-align: center;
+        font-size: 20px;
+        line-height: 1;
+        font-weight: 800;
+        letter-spacing: 0.3px;
+        white-space: nowrap;
+    }
+
+    /* =========================
+       HERO
+    ========================== */
+    .hero {
+        background: linear-gradient(135deg, #ffbf18 0%, #ffd34f 100%);
+        padding: 20px 18px 26px;
+    }
+
+    .hero-label {
+        text-align: center;
+        color: #624d00;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+    }
+
+    .hero-title {
+        color: #ffffff;
+        text-align: center;
+        font-size: 25px;
+        line-height: 1.05;
+        font-weight: 900;
+        margin-bottom: 13px;
+    }
+
+    .reward-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .reward-image-box {
+        width: 115px;
+        height: 115px;
+        flex: 0 0 115px;
+        border-radius: 24px;
+        background: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.10);
+    }
+
+    .headphone-icon {
+        position: relative;
+        width: 61px;
+        height: 58px;
+    }
+
+    .headphone-arc {
+        position: absolute;
+        left: 7px;
+        top: 4px;
+        width: 47px;
+        height: 42px;
+        border: 4px solid #c3c1ca;
+        border-bottom: 0;
+        border-radius: 30px 30px 0 0;
+    }
+
+    .ear-left,
+    .ear-right {
+        position: absolute;
+        top: 28px;
+        width: 12px;
+        height: 23px;
+        background: #b9b7c0;
+        border-radius: 7px;
+    }
+
+    .ear-left {
+        left: 1px;
+    }
+
+    .ear-right {
+        right: 1px;
+    }
+
+    .headphone-inner-left,
+    .headphone-inner-right {
+        position: absolute;
+        top: 31px;
+        width: 7px;
+        height: 15px;
+        background: #efedf1;
+        border-radius: 5px;
+    }
+
+    .headphone-inner-left {
+        left: 4px;
+    }
+
+    .headphone-inner-right {
+        right: 4px;
+    }
+
+    .reward-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .coin-badge {
+        display: inline-block;
+        color: #ffffff;
+        background: #e73849;
+        border-radius: 9px;
+        padding: 8px 11px 10px;
+        font-size: 24px;
+        line-height: 1;
+        font-weight: 900;
+        box-shadow: 0 5px 0 #ca3140;
+    }
+
+    .hero-description {
+        margin-top: 12px;
+        padding: 10px 12px;
+        background: rgba(255, 248, 216, 0.96);
+        color: #514211;
+        border-radius: 10px;
+        font-size: 13px;
+        line-height: 1.3;
+        font-weight: 700;
+    }
+
+    /* =========================
+       MAIN CONTENT
+    ========================== */
+    .content {
+        padding: 17px 14px 18px;
+    }
+
+    .card {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 16px;
+        margin-bottom: 15px;
+        border: 1px solid #e0e5e7;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .section-label {
+        font-size: 12px;
+        color: #697783;
+        font-weight: 800;
+        letter-spacing: 0.7px;
+        margin-bottom: 6px;
+    }
+
+    .balance-row {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .balance-number {
+        font-size: 31px;
+        line-height: 1;
+        font-weight: 900;
+        color: #172b3b;
+    }
+
+    .status-pill {
+        padding: 8px 13px;
+        border-radius: 11px;
+        background: #fff2c9;
+        color: #725b02;
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .progress-track {
+        margin-top: 18px;
+        height: 11px;
+        border-radius: 99px;
+        background: #edf0f1;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        width: 0%;
+        height: 100%;
+        background: #0b9698;
+        border-radius: inherit;
+        transition: width 0.35s ease;
+    }
+
+    .progress-text {
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        font-size: 11px;
+        color: #65717b;
+        font-weight: 700;
+    }
+
+    /* =========================
+       MISSION RULES
+    ========================== */
+    .rules-card {
+        background: #fff9e5;
+        border: 1px solid #edd88e;
+    }
+
+    .rules-title {
+        color: #725900;
+        font-size: 16px;
+        font-weight: 900;
+        margin-bottom: 7px;
+    }
+
+    .rules-text {
+        color: #514211;
+        font-size: 13px;
+        line-height: 1.4;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    /* =========================
+       DAY GRID
+    ========================== */
+    .days-title {
+        font-size: 17px;
+        font-weight: 900;
+        margin-bottom: 12px;
+        color: #1a2a37;
+    }
+
+    .days-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 7px;
+    }
+
+    .day {
+        min-height: 74px;
+        padding: 6px 3px 5px;
+        border: 2px solid #d1d5d7;
+        border-radius: 12px;
+        background: #fafafa;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        cursor: default;
+        transition: 0.18s ease;
+        user-select: none;
+    }
+
+    .day.available {
+        cursor: pointer;
+    }
+
+    .day.available:hover {
+        border-color: #0b9698;
+        transform: translateY(-1px);
+    }
+
+    .day.selected {
+        border-color: #f4b500;
+        background: #fffdf2;
+        box-shadow: inset 0 0 0 1px rgba(244, 181, 0, 0.18);
+    }
+
+    .day.completed {
+        border-color: #0b9698;
+        background: #eefafa;
+    }
+
+    .day-number {
+        font-size: 12px;
+        color: #1c2a34;
+        font-weight: 900;
+    }
+
+    .lock {
+        width: 29px;
+        height: 29px;
+        border-radius: 8px;
+        background: #687176;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        color: #ffffff;
+    }
+
+    .day-question {
+        font-size: 14px;
+        font-weight: 900;
+        color: #3e4b53;
+        line-height: 1;
+    }
+
+    .day.available .lock {
+        background: transparent;
+        color: #5c6870;
+        font-size: 18px;
+    }
+
+    /* =========================
+       EXPLORATION
+    ========================== */
+    .explore-card {
+        padding-bottom: 17px;
+    }
+
+    .explore-title {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 17px;
+        font-weight: 900;
+        color: #182933;
+        margin-bottom: 5px;
+    }
+
+    .explore-icon {
+        font-size: 17px;
+    }
+
+    .explore-text {
+        margin: 0 0 17px;
+        color: #60717c;
+        font-size: 12px;
+        line-height: 1.4;
+        font-weight: 700;
+    }
+
+    .slider-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .day-slider {
+        flex: 1;
+        accent-color: #0b9698;
+        cursor: pointer;
+    }
+
+    .selected-index {
+        width: 54px;
+        min-width: 54px;
+        padding: 7px 8px;
+        background: #eaf8f8;
+        border-radius: 10px;
+        text-align: center;
+        color: #0b777a;
+        font-size: 14px;
+        font-weight: 900;
+    }
+
+    .selected-panel {
+        margin-top: 16px;
+        background: #f1fcfc;
+        border: 1px solid #bce6e6;
+        border-radius: 18px;
+        padding: 16px 12px 14px;
+        text-align: center;
+    }
+
+    .selected-label {
+        color: #637985;
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.6px;
+        margin-bottom: 4px;
+    }
+
+    .selected-day-title {
+        color: #087b7e;
+        font-size: 26px;
+        font-weight: 900;
+        margin-bottom: 7px;
+    }
+
+    .selected-instruction {
+        color: #27333a;
+        font-size: 12px;
+        line-height: 1.35;
+        font-weight: 800;
+        margin: 0 auto 15px;
+        max-width: 290px;
+    }
+
+    .login-button {
+        width: 100%;
+        min-height: 50px;
+        border: 0;
+        border-radius: 15px;
+        background: #0b9698;
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 900;
+        cursor: pointer;
+        transition: 0.18s ease;
+    }
+
+    .login-button:hover {
+        background: #087f82;
+    }
+
+    .login-button:active {
+        transform: translateY(1px);
+    }
+
+    .login-button:disabled {
+        opacity: 0.65;
+        cursor: default;
+    }
+
+    /* =========================
+       RESPONSIVE
+    ========================== */
+    @media (max-width: 370px) {
+        .topbar-title {
+            font-size: 17px;
+        }
+
+        .hero-title {
+            font-size: 22px;
+        }
+
+        .reward-image-box {
+            width: 95px;
+            height: 95px;
+            flex-basis: 95px;
+        }
+
+        .coin-badge {
+            font-size: 20px;
+        }
+
+        .day {
+            min-height: 67px;
+        }
+
+        .days-grid {
+            gap: 5px;
+        }
+
+        .day-number {
+            font-size: 11px;
+        }
+    }
 </style>
 </head>
 
 <body>
+
 <div class="app">
 
-  <header class="topbar">
-    <button class="round-btn" type="button" aria-label="Kembali"
-            onclick="showToast('Ini adalah simulasi misi login harian.')">‹</button>
-    <div class="top-title">MISI LOGIN 50 HARI</div>
-    <button class="round-btn" type="button" aria-label="Petunjuk"
-            onclick="showToast('Pilih hari 1–5, lalu tekan LOGIN untuk menerima koin hari tersebut.')">?</button>
-  </header>
-
-  <section class="hero">
-    <div class="hero-grid">
-      <div class="earbuds" aria-hidden="true">🎧</div>
-      <div>
-        <small>Event hadiah</small>
-        <h1>Earphone Gaming</h1>
-        <div class="price">4.550 KOIN</div>
-        <div class="hero-note">
-          Pertahankan streak login. Misi berlangsung hingga hari ke-50.
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <main class="content">
-
-    <section class="section card">
-      <div class="balance">
-        <div>
-          <div class="eyebrow">Saldo koin saat ini</div>
-          <div class="balance-number" id="balance">0 Koin</div>
-        </div>
-        <div class="status-chip ready" id="statusChip">Belum login</div>
-      </div>
-
-      <div class="progress-track">
-        <div class="progress-fill" id="progressFill"></div>
-      </div>
-
-      <div class="progress-line">
-        <span id="progressText">Hari 0 dari 50</span>
-        <span>Target 4.550</span>
-      </div>
-    </section>
-
-    <section class="section card rule-card">
-      <div class="rule-title">ATURAN MISI</div>
-      <div class="rule-text">
-        Saldo dimulai dari <strong>0 koin</strong>. Setiap kali berhasil login, saldo bertambah
-        mengikuti pola hadiah misi
-      </div>
-    </section>
-
-    <section class="section card">
-      <div class="section-title">Progres Login 50 Hari</div>
-      <div class="streak-grid" id="streakGrid"></div>
-    </section>
-
-    <section class="section explore">
-      <h2 class="explore-title">🔎 Eksplorasi Login</h2>
-      <p class="explore-subtitle">
-        Mulai dari Hari 1. Geser slider untuk memilih hari. Setelah hari dipilih,
-        tekan tombol <strong>LOGIN</strong> untuk menjalankan simulasi dan mengubah saldo.
-        Pada versi ini, eksplorasi dibatasi sampai Hari 5 agar pola awal dapat diamati.
-      </p>
-
-      <div class="slider-row">
-        <input id="daySlider" type="range" min="1" max="5" step="1" value="1"
-               aria-label="Pilih hari login dari 1 sampai 5">
-        <div class="slider-value" id="sliderValue">1</div>
-      </div>
-
-      <div class="target-panel">
-        <div class="target-label">Hari yang dipilih</div>
-        <div class="target-day" id="targetDay">Hari ke-1</div>
-        <div class="target-state" id="targetState">
-          Saldo setelah login hari ini belum diperbarui.
-        </div>
-
-        <button class="login-button" id="loginButton" type="button">
-          LOGIN HARI KE-1
+    <!-- HEADER -->
+    <header class="topbar">
+        <button class="circle-btn" type="button" aria-label="Kembali" id="backButton">
+            ‹
         </button>
 
-        <div class="login-result" id="loginResult"></div>
-      </div>
+        <div class="topbar-title">MISI LOGIN 50 HARI</div>
+
+        <button class="circle-btn" type="button" aria-label="Informasi" id="helpButton">
+            ?
+        </button>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero">
+
+        <div class="hero-label">EVENT HADIAH</div>
+
+        <div class="hero-title">Earphone Gaming</div>
+
+        <div class="reward-row">
+
+            <div class="reward-image-box" aria-label="Earphone Gaming">
+                <div class="headphone-icon">
+                    <div class="headphone-arc"></div>
+                    <div class="ear-left"></div>
+                    <div class="ear-right"></div>
+                    <div class="headphone-inner-left"></div>
+                    <div class="headphone-inner-right"></div>
+                </div>
+            </div>
+
+            <div class="reward-info">
+                <div class="coin-badge">4.550 KOIN</div>
+
+                <div class="hero-description">
+                    Pertahankan streak login. Misi berlangsung hingga hari ke-50.
+                </div>
+            </div>
+
+        </div>
     </section>
 
-    <section class="section questions">
-      <div class="section-title">SILAHKAN ANDA EKSPLOR SIMULASI DI ATAS DAN JAWAB PERTANYAAN BERIKUT </div>
+    <!-- CONTENT -->
+    <main class="content">
 
-      <div class="q">
-        <div class="q-number">1</div>
-        <div>Mulai dari saldo 0 koin. Apa yang terjadi pada saldo setelah kamu menekan <strong>LOGIN</strong> pada Hari 1?</div>
-      </div>
+        <!-- BALANCE -->
+        <section class="card">
 
-      <div class="q">
-        <div class="q-number">2</div>
-        <div>Catat saldo setelah login pada Hari 1, Hari 2, Hari 3, Hari 4, dan Hari 5.</div>
-      </div>
+            <div class="section-label">SALDO KOIN SAAT INI</div>
 
-      <div class="q">
-        <div class="q-number">3</div>
-        <div>Bandingkan saldo pada dua hari yang berurutan. Berapa kenaikan saldo dari satu hari ke hari berikutnya?</div>
-      </div>
+            <div class="balance-row">
+                <div class="balance-number" id="balanceNumber">0 Koin</div>
 
-      <div class="q">
-        <div class="q-number">4</div>
-        <div>Apakah kenaikan saldo dari satu hari ke hari berikutnya tetap? Jelaskan berdasarkan hasil pengamatanmu.</div>
-      </div>
+                <div class="status-pill" id="statusPill">
+                    Belum login
+                </div>
+            </div>
 
-      <div class="q">
-        <div class="q-number">5</div>
-        <div>Jika pola saldo tersebut terus berlanjut, bagaimana kamu dapat menentukan saldo KOIN pada hari ke-50? Apakah kita harus login sampai hari ke-50 untuk mendapatkan earphone gaming?</div>
-      </div>
+            <div class="progress-track">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
 
-      <div class="note">
-        ✎ Tuliskan hasil pengamatanmu di buku catatan. Fokus pada <strong>data, perubahan,
-        pola, dan dugaan cara menentukan saldo pada hari berikutnya</strong>.
-      </div>
+            <div class="progress-text">
+                <span id="progressDay">Hari 0 dari 50</span>
+                <span>Target 4.550</span>
+            </div>
 
-    </section>
+        </section>
 
-    <section class="section callout">
-      <div class="star">★</div>
-      <div>
-        <strong>Misi pembelajaran</strong>
-        <span>
-          Amati perubahan saldo melalui simulasi. Temukan formula pola dari data yang kamu peroleh.
-        </span>
-      </div>
-    </section>
+        <!-- RULES -->
+        <section class="card rules-card">
 
-  </main>
+            <div class="rules-title">ATURAN MISI</div>
+
+            <p class="rules-text">
+                Saldo dimulai dari 0 koin. Setiap kali berhasil login, saldo bertambah mengikuti pola hadiah misi
+            </p>
+
+        </section>
+
+        <!-- DAYS -->
+        <section class="card">
+
+            <div class="days-title">Progres Login 50 Hari</div>
+
+            <div class="days-grid" id="daysGrid"></div>
+
+        </section>
+
+        <!-- EXPLORATION -->
+        <section class="card explore-card">
+
+            <div class="explore-title">
+                <span class="explore-icon">🔎</span>
+                <span>Eksplorasi Login</span>
+            </div>
+
+            <p class="explore-text">
+                Mulai dari Hari 1. Geser slider untuk memilih hari. Setelah hari dipilih, tekan tombol LOGIN untuk menjalankan simulasi dan mengubah saldo. Pada versi ini, eksplorasi dibatasi sampai Hari 5 agar pola awal dapat diamati.
+            </p>
+
+            <div class="slider-row">
+
+                <input
+                    type="range"
+                    id="daySlider"
+                    class="day-slider"
+                    min="1"
+                    max="5"
+                    value="1"
+                    step="1"
+                    aria-label="Pilih hari"
+                >
+
+                <div class="selected-index" id="selectedIndex">
+                    1
+                </div>
+
+            </div>
+
+            <div class="selected-panel">
+
+                <div class="selected-label">HARI YANG DIPILIH</div>
+
+                <div class="selected-day-title" id="selectedDayTitle">
+                    Hari ke-1
+                </div>
+
+                <p class="selected-instruction">
+                    Tekan LOGIN untuk menerima koin hari ke-1 dan memperbarui saldo total.
+                </p>
+
+                <button
+                    type="button"
+                    class="login-button"
+                    id="loginButton"
+                >
+                    LOGIN HARI KE-1
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
 </div>
 
-<div class="toast" id="toast"></div>
-
 <script>
-  const DAY_LIMIT = 5;
+(function () {
+    "use strict";
 
-  // Total saldo setelah setiap login pada lima hari pertama.
-  // Saldo awal = 0.
-  // Hari 1 = 50, lalu saldo bertambah 100 setiap hari:
-  // 50, 150, 250, 350, 450.
-  const balanceAfterLogin = {
-    1: 50,
-    2: 150,
-    3: 250,
-    4: 350,
-    5: 450
-  };
+    const MAX_DAYS = 50;
+    const EXPLORATION_MAX = 5;
 
-  const loginReward = {
-    1: 50,
-    2: 100,
-    3: 100,
-    4: 100,
-    5: 100
-  };
+    /*
+     * Nilai hadiah tidak dibuat-buat di sini karena gambar hanya
+     * menunjukkan "+?" dan tidak memberikan nominal tiap hari.
+     * Simulasi tetap berfungsi untuk memilih hari dan mengubah
+     * status login tanpa mengarang pola hadiah.
+     */
 
-  let currentDay = 0;
-  let selectedDay = 1;
+    let selectedDay = 1;
+    let loggedDays = new Set();
+    let currentBalance = 0;
 
-  const balanceEl = document.getElementById("balance");
-  const statusChip = document.getElementById("statusChip");
-  const progressFill = document.getElementById("progressFill");
-  const progressText = document.getElementById("progressText");
-  const streakGrid = document.getElementById("streakGrid");
+    const daysGrid = document.getElementById("daysGrid");
+    const daySlider = document.getElementById("daySlider");
+    const selectedIndex = document.getElementById("selectedIndex");
+    const selectedDayTitle = document.getElementById("selectedDayTitle");
+    const loginButton = document.getElementById("loginButton");
+    const balanceNumber = document.getElementById("balanceNumber");
+    const statusPill = document.getElementById("statusPill");
+    const progressBar = document.getElementById("progressBar");
+    const progressDay = document.getElementById("progressDay");
 
-  const slider = document.getElementById("daySlider");
-  const sliderValue = document.getElementById("sliderValue");
-  const targetDay = document.getElementById("targetDay");
-  const targetState = document.getElementById("targetState");
-  const loginButton = document.getElementById("loginButton");
-  const loginResult = document.getElementById("loginResult");
+    function createDayCard(dayNumber) {
+        const day = document.createElement("div");
+        day.className = "day";
 
+        const isAvailable = dayNumber <= EXPLORATION_MAX;
 
-  function formatKoin(value){
-    return value.toLocaleString("id-ID") + " Koin";
-  }
+        if (isAvailable) {
+            day.classList.add("available");
+            day.setAttribute("role", "button");
+            day.setAttribute("tabindex", "0");
+            day.setAttribute("aria-label", "Pilih Hari " + dayNumber);
 
-  function updateBalanceView(){
-    const balance = currentDay === 0 ? 0 : balanceAfterLogin[currentDay];
-    balanceEl.textContent = formatKoin(balance);
-    progressText.textContent = "Hari " + currentDay + " dari 50";
-    progressFill.style.width = ((currentDay / 50) * 100).toFixed(2) + "%";
+            day.addEventListener("click", function () {
+                selectDay(dayNumber);
+            });
 
-    if(currentDay === 0){
-      statusChip.className = "status-chip ready";
-      statusChip.textContent = "Belum login";
-    }else{
-      statusChip.className = "status-chip done";
-      statusChip.textContent = "Login tersimpan";
-    }
-  }
+            day.addEventListener("keydown", function (event) {
+                if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    selectDay(dayNumber);
+                }
+            });
+        }
 
-  function updateTargetView(){
-    selectedDay = Number(slider.value);
+        const number = document.createElement("div");
+        number.className = "day-number";
+        number.textContent = "Hari " + dayNumber;
 
-    sliderValue.textContent = selectedDay;
-    targetDay.textContent = "Hari ke-" + selectedDay;
-    loginButton.textContent = "LOGIN HARI KE-" + selectedDay;
+        const icon = document.createElement("div");
+        icon.className = "lock";
+        icon.textContent = isAvailable ? "›" : "🔒";
 
-    if(selectedDay <= currentDay){
-      targetState.textContent =
-        "Hari ini sudah login. Saldo total: " +
-        formatKoin(balanceAfterLogin[selectedDay]) + ".";
-      loginButton.disabled = true;
-      loginResult.className = "login-result show";
-      loginResult.textContent =
-        "Login hari ke-" + selectedDay +
-        " sudah dilakukan. Pilih hari berikutnya untuk melanjutkan.";
-    }else{
-      targetState.textContent =
-        "Tekan LOGIN untuk menerima koin hari ke-" + selectedDay +
-        " dan memperbarui saldo total.";
-      loginButton.disabled = selectedDay !== currentDay + 1;
-      loginResult.className = "login-result";
-      loginResult.textContent = "";
+        const question = document.createElement("div");
+        question.className = "day-question";
+        question.textContent = "?";
 
-      if(selectedDay !== currentDay + 1){
-        targetState.textContent =
-          "Login harus dilakukan berurutan. Selesaikan Hari ke-" +
-          (currentDay + 1) + " terlebih dahulu.";
-      }
+        day.appendChild(number);
+        day.appendChild(icon);
+        day.appendChild(question);
+
+        return day;
     }
 
-    renderStreak();
-  }
+    function renderDays() {
+        daysGrid.innerHTML = "";
 
-  function renderStreak(){
-    streakGrid.innerHTML = "";
+        for (let day = 1; day <= MAX_DAYS; day++) {
+            const dayCard = createDayCard(day);
 
-    for(let day = 1; day <= 50; day++){
-      const card = document.createElement("div");
-      card.className = "day-card";
+            if (day === selectedDay) {
+                dayCard.classList.add("selected");
+            }
 
-      if(day <= currentDay){
-        card.classList.add("completed");
-      }else if(day === currentDay + 1){
-        card.classList.add("available");
-      }else{
-        card.classList.add("locked");
-      }
+            if (loggedDays.has(day)) {
+                dayCard.classList.add("completed");
+                dayCard.querySelector(".lock").textContent = "✓";
+            }
 
-      if(day === selectedDay){
-        card.classList.add("current");
-      }
-
-      const number = document.createElement("div");
-      number.className = "day-number";
-      number.textContent = "Hari " + day;
-
-      const icon = document.createElement("div");
-      icon.className = "day-icon";
-
-      const value = document.createElement("div");
-      value.className = "day-value";
-
-      if(day <= currentDay){
-        icon.textContent = "✓";
-        value.textContent = "+" + loginReward[day].toLocaleString("id-ID");
-      }else if(day === currentDay + 1){
-        icon.textContent = "›";
-        value.textContent = "+?";
-      }else{
-        icon.textContent = "🔒";
-        value.textContent = "?";
-      }
-
-      card.append(number, icon, value);
-
-      // Hanya lima hari pertama yang dapat dipilih pada slider.
-      if(day <= DAY_LIMIT){
-        card.classList.add("available");
-        card.addEventListener("click", () => {
-          if(day <= DAY_LIMIT){
-            slider.value = day;
-            updateTargetView();
-          }
-        });
-      }
-
-      streakGrid.appendChild(card);
-    }
-  }
-
-  loginButton.addEventListener("click", () => {
-    const day = selectedDay;
-
-    // Wajib berurutan: 1 -> 2 -> 3 -> 4 -> 5.
-    if(day !== currentDay + 1){
-      showToast("Login harus dilakukan secara berurutan.");
-      return;
+            daysGrid.appendChild(dayCard);
+        }
     }
 
-    currentDay = day;
-    updateBalanceView();
-    updateTargetView();
+    function selectDay(dayNumber) {
+        if (dayNumber < 1 || dayNumber > EXPLORATION_MAX) {
+            return;
+        }
 
-    loginResult.className = "login-result show";
-    loginResult.innerHTML =
-      "<strong>Login berhasil!</strong><br>" +
-      "Koin yang diperoleh hari ini: +" +
-      loginReward[day].toLocaleString("id-ID") +
-      " koin.<br>" +
-      "Saldo total sekarang: <strong>" +
-      formatKoin(balanceAfterLogin[day]) +
-      "</strong>.";
+        selectedDay = dayNumber;
 
-    showToast(
-      "Hari ke-" + day +
-      " berhasil login. Saldo menjadi " +
-      formatKoin(balanceAfterLogin[day]) + "."
-    );
-  });
+        daySlider.value = String(dayNumber);
+        selectedIndex.textContent = String(dayNumber);
+        selectedDayTitle.textContent = "Hari ke-" + dayNumber;
 
-  slider.addEventListener("input", updateTargetView);
+        const logged = loggedDays.has(dayNumber);
 
-  function showToast(message){
-    const toast = document.getElementById("toast");
-    toast.textContent = message;
-    toast.classList.add("show");
-    clearTimeout(showToast.timer);
-    showToast.timer = setTimeout(
-      () => toast.classList.remove("show"),
-      2600
-    );
-  }
+        if (logged) {
+            loginButton.textContent = "SUDAH LOGIN HARI KE-" + dayNumber;
+            loginButton.disabled = true;
+        } else {
+            loginButton.textContent = "LOGIN HARI KE-" + dayNumber;
+            loginButton.disabled = false;
+        }
 
-  // Keadaan awal:
-  // saldo 0, belum login, slider di Hari 1.
-  updateBalanceView();
-  updateTargetView();
+        renderDays();
+    }
+
+    function updateProgress() {
+        const completedCount = loggedDays.size;
+
+        progressDay.textContent = "Hari " + completedCount + " dari 50";
+        progressBar.style.width = ((completedCount / MAX_DAYS) * 100) + "%";
+
+        balanceNumber.textContent = currentBalance + " Koin";
+
+        statusPill.textContent = completedCount > 0
+            ? "Sudah login"
+            : "Belum login";
+    }
+
+    function loginSelectedDay() {
+        if (loggedDays.has(selectedDay)) {
+            return;
+        }
+
+        /*
+         * Tidak mengarang nominal koin karena nominal hadiah
+         * tiap hari tidak terlihat pada sumber gambar.
+         *
+         * Status login dan progres tetap dijalankan.
+         */
+        loggedDays.add(selectedDay);
+
+        updateProgress();
+        selectDay(selectedDay);
+
+        /*
+         * Pesan ringan hanya untuk memberikan feedback interaksi.
+         * Tidak menambah informasi baru pada antarmuka utama.
+         */
+        loginButton.textContent = "SUDAH LOGIN HARI KE-" + selectedDay;
+        loginButton.disabled = true;
+    }
+
+    daySlider.addEventListener("input", function () {
+        selectDay(Number(this.value));
+    });
+
+    loginButton.addEventListener("click", loginSelectedDay);
+
+    document.getElementById("backButton").addEventListener("click", function () {
+        window.history.back();
+    });
+
+    document.getElementById("helpButton").addEventListener("click", function () {
+        alert(
+            "Pertahankan streak login. Misi berlangsung hingga hari ke-50."
+        );
+    });
+
+    renderDays();
+    updateProgress();
+    selectDay(1);
+
+})();
 </script>
+
 </body>
 </html>
