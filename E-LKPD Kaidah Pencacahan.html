@@ -1,0 +1,692 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>E-LKPD Kaidah Pencacahan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Lexend:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: sticky progress bar, satu kegiatan per layar, kartu soal dengan umpan balik langsung. */
+:root {
+  --bg: #eef2fb;
+  --surface: #ffffff;
+  --surface-2: #f4f6fc;
+  --ink: #1b2240;
+  --ink-soft: #566083;
+  --line: #d5dbee;
+  --navy: #1e2761;
+  --accent: #3b5bdb;
+  --accent-ink: #ffffff;
+  --amber: #f59f00;
+  --amber-soft: #fff3d1;
+  --good: #0c8f6a;
+  --good-soft: #dff6ec;
+  --bad: #c92a2a;
+  --bad-soft: #fde6e6;
+  --circle-a: rgba(59, 91, 219, .28);
+  --circle-b: rgba(245, 159, 0, .32);
+  --font-display: "Lexend", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11152e; --surface: #1b2142; --surface-2: #232a52; --ink: #eef1ff; --ink-soft: #a9b2d8; --line: #333b6b;
+    --navy: #0b0f27; --accent: #7c94ff; --accent-ink: #0b0f27; --amber: #ffb52e; --amber-soft: #3a2f10;
+    --good: #3fd6a4; --good-soft: #12342b; --bad: #ff8787; --bad-soft: #3c1b22;
+    --circle-a: rgba(124, 148, 255, .30); --circle-b: rgba(255, 181, 46, .30);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11152e; --surface: #1b2142; --surface-2: #232a52; --ink: #eef1ff; --ink-soft: #a9b2d8; --line: #333b6b;
+  --navy: #0b0f27; --accent: #7c94ff; --accent-ink: #0b0f27; --amber: #ffb52e; --amber-soft: #3a2f10;
+  --good: #3fd6a4; --good-soft: #12342b; --bad: #ff8787; --bad-soft: #3c1b22;
+  --circle-a: rgba(124, 148, 255, .30); --circle-b: rgba(255, 181, 46, .30);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 17px; line-height: 1.55; margin: 0; padding-inline: 16px; padding-block: 0 48px; }
+.wrap { max-width: 860px; margin-inline: auto; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.25; text-wrap: balance; margin: 0; }
+p { margin: 0 0 .7em; }
+button, input, select, textarea { font: inherit; color: inherit; }
+
+/* top bar */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--navy); color: #fff; margin-inline: -16px; padding: 12px 16px; }
+.top-in { max-width: 860px; margin-inline: auto; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.brand { font-family: var(--font-display); font-weight: 600; font-size: 1rem; flex: 1 1 200px; min-width: 0; }
+.brand small { display: block; font-family: var(--font-body); font-weight: 400; font-size: .8rem; opacity: .8; }
+.meter { flex: 1 1 220px; min-width: 0; }
+.meter-label { display: flex; justify-content: space-between; font-size: .8rem; margin-bottom: 4px; opacity: .92; }
+.track { height: 10px; border-radius: 99px; background: rgba(255,255,255,.2); overflow: hidden; }
+.fill { height: 100%; width: 0; background: var(--amber); border-radius: 99px; transition: width .5s ease; }
+
+/* intro */
+.hero { padding-block: 24px 8px; display: grid; gap: 14px; }
+.hero h1 { font-size: clamp(1.6rem, 5vw, 2.3rem); color: var(--navy); }
+:root[data-theme="dark"] .hero h1 { color: var(--ink); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .hero h1 { color: var(--ink); } }
+.hero p { color: var(--ink-soft); max-width: 62ch; }
+.ident { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+.ident label { display: grid; gap: 4px; font-size: .85rem; color: var(--ink-soft); }
+.ident input { padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--surface); }
+
+/* stepper */
+.steps { display: flex; gap: 8px; overflow-x: auto; padding-block: 14px 6px; scrollbar-width: thin; }
+.step { flex: 0 0 auto; border: 1.5px solid var(--line); background: var(--surface); border-radius: 99px; padding: 8px 14px; cursor: pointer; font-size: .92rem; display: flex; gap: 8px; align-items: center; min-height: 44px; }
+.step .dot { width: 22px; height: 22px; border-radius: 50%; background: var(--surface-2); display: grid; place-items: center; font-size: .75rem; font-weight: 700; border: 1.5px solid var(--line); }
+.step[aria-current="true"] { background: var(--navy); color: #fff; border-color: var(--navy); }
+:root[data-theme="dark"] .step[aria-current="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .step[aria-current="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); } }
+.step.done .dot { background: var(--good); color: #fff; border-color: var(--good); }
+
+/* panels */
+.panel { display: none; gap: 16px; padding-block: 14px; }
+.panel.on { display: grid; }
+.panel > h2 { font-size: 1.45rem; color: var(--navy); }
+:root[data-theme="dark"] .panel > h2 { color: var(--ink); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .panel > h2 { color: var(--ink); } }
+.story { background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px; padding: 14px 16px; }
+.story b.k { color: var(--accent); }
+.note { background: var(--amber-soft); border-radius: 12px; padding: 12px 14px; font-size: .95rem; }
+
+.q { background: var(--surface); border: 1.5px solid var(--line); border-radius: 16px; padding: 16px; display: grid; gap: 12px; min-width: 0; }
+.q.solved { border-color: var(--good); }
+.q-head { display: flex; gap: 10px; align-items: flex-start; }
+.q-no { flex: 0 0 auto; min-width: 34px; height: 34px; padding-inline: 8px; border-radius: 99px; background: var(--navy); color: #fff; display: grid; place-items: center; font-family: var(--font-display); font-weight: 600; font-size: .85rem; }
+:root[data-theme="dark"] .q-no { background: var(--accent); color: var(--accent-ink); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .q-no { background: var(--accent); color: var(--accent-ink); } }
+.q.solved .q-no { background: var(--good); color: #fff; }
+.q-title { margin: 0; font-weight: 700; min-width: 0; }
+.lvl { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; border-radius: 99px; padding: 2px 9px; background: var(--surface-2); color: var(--ink-soft); font-weight: 700; margin-left: 6px; white-space: nowrap; }
+.lvl.t { background: var(--amber-soft); }
+
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.num { width: 5.4rem; padding: 9px 10px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--surface-2); text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+.num.ok, .cellin.ok { border-color: var(--good); background: var(--good-soft); }
+.num.err, .cellin.err { border-color: var(--bad); background: var(--bad-soft); }
+.cellin { width: 100%; min-width: 0; padding: 8px; border: 1.5px solid var(--line); border-radius: 8px; background: var(--surface-2); text-align: center; }
+select.sel { padding: 8px 10px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--surface-2); max-width: 100%; }
+select.sel.ok { border-color: var(--good); background: var(--good-soft); }
+select.sel.err { border-color: var(--bad); background: var(--bad-soft); }
+textarea { width: 100%; min-height: 96px; padding: 10px 12px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--surface-2); resize: vertical; }
+:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
+
+.btn { border: 0; border-radius: 12px; padding: 10px 16px; font-weight: 700; cursor: pointer; min-height: 44px; }
+.btn.main { background: var(--accent); color: var(--accent-ink); }
+.btn.ghost { background: var(--surface-2); border: 1.5px solid var(--line); }
+.btn:disabled { opacity: .5; cursor: default; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.fb { border-radius: 12px; padding: 10px 12px; font-size: .96rem; display: none; }
+.fb.show { display: block; }
+.fb.good { background: var(--good-soft); color: var(--ink); }
+.fb.bad { background: var(--bad-soft); color: var(--ink); }
+.fb.hint { background: var(--amber-soft); }
+.fb .tag { font-weight: 700; }
+.explain { background: var(--surface-2); border-left: 4px solid var(--good); border-radius: 10px; padding: 10px 12px; font-size: .95rem; display: none; }
+.explain.show { display: block; }
+
+/* tree */
+.tree { display: grid; gap: 14px; }
+.root { justify-self: start; background: var(--navy); color: #fff; border-radius: 99px; padding: 6px 16px; font-weight: 700; }
+:root[data-theme="dark"] .root { background: var(--accent); color: var(--accent-ink); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .root { background: var(--accent); color: var(--accent-ink); } }
+.branch { display: grid; grid-template-columns: minmax(96px, 150px) 1fr; gap: 12px; align-items: center; }
+.nasi { background: var(--accent); color: var(--accent-ink); border-radius: 12px; padding: 10px; text-align: center; font-weight: 700; }
+.leaves { display: grid; gap: 8px; border-left: 3px solid var(--line); padding-left: 12px; min-width: 0; }
+.leaf { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-width: 0; }
+.chip { border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 99px; padding: 6px 12px; cursor: pointer; min-height: 40px; }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.result { font-weight: 700; min-width: 0; overflow-wrap: anywhere; }
+.result.ok { color: var(--good); }
+.result.err { color: var(--bad); }
+
+/* tables */
+.scroll { overflow-x: auto; }
+table.t { border-collapse: separate; border-spacing: 6px; width: 100%; min-width: 300px; }
+table.t th { font-family: var(--font-display); font-size: .82rem; font-weight: 600; background: var(--navy); color: #fff; border-radius: 8px; padding: 8px; }
+:root[data-theme="dark"] table.t th { background: var(--accent); color: var(--accent-ink); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) table.t th { background: var(--accent); color: var(--accent-ink); } }
+table.t th.side { background: var(--accent); color: var(--accent-ink); text-align: left; }
+table.t td { padding: 0; }
+.cell { width: 100%; min-height: 46px; border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 8px; cursor: pointer; font-weight: 700; font-variant-numeric: tabular-nums; }
+.cell[aria-pressed="true"] { background: var(--amber); border-color: var(--amber); color: #1b2240; }
+.cell.ok { outline: 3px solid var(--good); }
+.cell.err { outline: 3px solid var(--bad); }
+
+/* pairs */
+.pairs { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; }
+.pairs .chip { border-radius: 12px; text-align: left; }
+
+/* venn */
+.venn { position: relative; margin-top: 30px; width: min(100%, 440px); aspect-ratio: 5 / 3; margin-inline: auto; max-width: 100%; }
+.venn .c { position: absolute; top: 0; width: 60%; aspect-ratio: 1; border-radius: 50%; }
+.venn .c.a { left: 0; background: var(--circle-a); border: 2px solid var(--accent); }
+.venn .c.b { right: 0; background: var(--circle-b); border: 2px solid var(--amber); }
+.venn .cap { position: absolute; top: -26px; font-size: .8rem; font-weight: 700; }
+.venn .cap.a { left: 2%; } .venn .cap.b { right: 2%; }
+.venn input { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 3.4rem; padding: 6px 4px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--surface); text-align: center; font-weight: 700; }
+.venn input.ok { border-color: var(--good); background: var(--good-soft); }
+.venn input.err { border-color: var(--bad); background: var(--bad-soft); }
+.venn .lab { position: absolute; top: 72%; transform: translateX(-50%); font-size: .78rem; color: var(--ink-soft); white-space: nowrap; }
+
+.opts { display: grid; gap: 8px; }
+.opt { text-align: left; border: 1.5px solid var(--line); background: var(--surface-2); border-radius: 12px; padding: 10px 12px; cursor: pointer; min-height: 44px; }
+.opt[aria-pressed="true"] { border-color: var(--accent); background: var(--surface); box-shadow: 0 0 0 2px var(--accent) inset; }
+.opt.ok { border-color: var(--good); background: var(--good-soft); box-shadow: none; }
+.opt.err { border-color: var(--bad); background: var(--bad-soft); box-shadow: none; }
+
+.eq { font-family: var(--font-display); font-weight: 600; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.nav { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding-top: 6px; }
+.summary { background: var(--navy); color: #fff; border-radius: 18px; padding: 20px; display: grid; gap: 10px; }
+:root[data-theme="dark"] .summary { background: var(--surface-2); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .summary { background: var(--surface-2); } }
+.summary .big { font-family: var(--font-display); font-size: 2.4rem; font-weight: 700; color: var(--amber); }
+.rate { display: grid; gap: 10px; }
+.rate-row { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; align-items: center; border-bottom: 1px solid var(--line); padding-bottom: 10px; }
+.rate-row .opts-r { display: flex; gap: 6px; flex-wrap: wrap; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+@media (max-width: 520px) { .rate-row { grid-template-columns: 1fr; } .branch { grid-template-columns: 1fr; } .nasi { justify-self: start; } }
+@media (prefers-reduced-motion: reduce) { .fill { transition: none; } }
+</style>
+
+<div class="top"><div class="top-in">
+  <div class="brand">E-LKPD Kaidah Pencacahan<small>Pertemuan 1 · Konsep Pencacahan dan Aturan Penjumlahan</small></div>
+  <div class="meter"><div class="meter-label"><span id="mtxt">0 dari 16 selesai</span><span id="mpct">0%</span></div><div class="track" role="progressbar" aria-label="Kemajuan" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="mbar"><div class="fill" id="mfill"></div></div></div>
+</div></div>
+
+<div class="wrap">
+  <section class="hero">
+    <h1>Berapa banyak kemungkinan? Mari hitung dengan cara yang teratur.</h1>
+    <p>Kerjakan lima kegiatan secara berurutan. Setiap soal punya tombol Periksa, petunjuk bertahap, dan pembahasan. Tulis nama dan kelompokmu dulu.</p>
+    <div class="ident">
+      <label>Nama<input id="nama" type="text" autocomplete="off" placeholder="Nama lengkap"></label>
+      <label>Kelompok / Kelas<input id="kelompok" type="text" autocomplete="off" placeholder="Contoh: Kelompok 3 · XII IPA 1"></label>
+    </div>
+  </section>
+
+  <nav class="steps" id="steps" aria-label="Kegiatan"></nav>
+
+  <!-- ============ KEGIATAN 1 ============ -->
+  <section class="panel" id="p1">
+    <h2>Kegiatan 1 · Mendaftar semua kemungkinan</h2>
+    <div class="story">Kantin sekolah menyediakan <b class="k">3 menu nasi</b> (nasi goreng, nasi kuning, nasi campur) dan <b class="k">2 menu minuman</b> (es teh, jus jeruk). Satu paket terdiri dari 1 nasi dan 1 minuman.</div>
+
+    <div class="q" data-q="k1tree">
+      <div class="q-head"><span class="q-no">1a</span><p class="q-title">Lengkapi diagram pohon. Untuk setiap nasi, pilih minuman pada kedua cabangnya.</p></div>
+      <div class="tree" id="tree"></div>
+      <div class="actions"><button class="btn main" data-act="check">Periksa</button><button class="btn ghost" data-act="hint">Petunjuk</button></div>
+      <div class="fb"></div><div class="explain"></div>
+    </div>
+
+    <div class="q" data-q="k1table">
+      <div class="q-head"><span class="q-no">1b</span><p class="q-title">Lengkapi tabel silang. Tulis paket pada setiap sel, misalnya “Goreng + Teh”.</p></div>
+      <div class="scroll"><table class="t" id="tsilang"></table></div>
+      <div class="actions"><button class="btn main" data-act="check">Periksa</button><button class="btn ghost" data-act="hint">Petunjuk</button></div>
+      <div class="fb"></div><div class="explain"></div>
+    </div>
+
+    <div class="q" data-q="k1count">
+      <div class="q-head"><span class="q-no">1c</span><p class="q-title">Berapa banyak paket yang dapat dipilih?</p></div>
+      <div class="row"><input class="num" id="k1count" inputmode="numeric" aria-label="Banyak paket"><span>paket</span></div>
+      <div class="actions"><button class="btn main" data-act="check">Periksa</button><button class="btn ghost" data-act="hint">Petunjuk</button></div>
+      <div class="fb"></div><div class="explain"></div>
+    </div>
+
+    <div class="q" data-q="k1open">
+      <div class="q-head"><span class="q-no">1d</span><p class="q-title">Jika kantin punya 100 menu nasi dan 50 menu minuman, apakah mendaftar satu per satu masih praktis? Jelaskan pendapat kelompokmu.</p></div>
+      <textarea id="k1open" placeholder="Tulis alasanmu minimal satu kalimat…"></textarea>
+      <div class="actions"><button class="btn main" data-act="check">Simpan jawaban</button></div>
+      <div class="fb"></div><div class="explain"></div>
+    </div>
+    <div class="nav"><span></span><button class="btn main" data-go="2">Lanjut ke Kegiatan 2</button></div>
+  </section>
+
+  <!-- ============ KEGIATAN 2 ============ -->
+  <section class="panel" id="p2">
+    <h2>Kegiatan 2 · Aturan penjumlahan</h2>
+    <div class="story">Dani bepergian dari Singaraja ke Denpasar. Ia hanya boleh memilih <b class="k">satu</b> kendaraan: naik <b class="k">bus</b> (3 pilihan bus) <b class="k">atau</b> naik <b class="k">travel</b> (2 pilihan travel).</div>
+
+    <div class="q" data-q="k2a">
+      <div class="q-head"><span class="q-no">2a</span><p class="q-title">Tulis banyak pilihan untuk setiap kendaraan.</p></div>
+      <div class="row"><span>Bus:</span><input class="num" id="k2bus" inputmode="numeric" aria-label="Pilihan bus"><span>pilihan</span><span>Travel:</span><input class="num" id="k2trv" inputmode="numeric" aria-label="Pilihan travel"><span>pilihan</span></div>
+      <div class="actions"><button class="btn main" data-act="check">Periksa</button></div>
+      <div class="fb"></div><div class="explain"></div>
+    </div>
+
+    <div class="q" data-q="k2b">
+      <div class="q-head"><span class="q-no">2b</span><p class="q-title">Apakah Dani dapat naik bus dan travel sekaligus untuk satu perjalanan ini?</p></div>
+      <div class="opts" data-group="k2b">
+        <button class="opt" data-v="ya" aria-pressed="false">Ya, kedua kejadian terjadi bersamaan</button>
+        <button class="opt" data-v="tidak" aria-pressed="false">Tidak, kedua kejadian tidak terjadi bersamaan</button>
+      </div>
+      <div class="actions"><button class="btn main" data-act="check">Periksa</button><button class="btn ghost" data-act="hint">Petunjuk</button></div>
+      <div class="fb"></div><div class="explain"></div>
+    </div>
+
+    <div class="q" data-q="k2c">
+      <div class="q-head"><span class="q-no">2c</span><p class="q-title">Hitung banyak cara Dani memilih kendaraan.</p></div>
+      <div class="eq"><input class="num" id="k2m" inputmode="numeric" aria-label="Bilangan pertama"> + <input class="num" id="k2n" inputmode="numeric" aria-label="Bilangan kedua"> = <input class="num" id="k2t" inputmode="numeric" aria-label="Hasil"> cara</div>
+      <div class="actions"><button class="btn main" data-act="check">Periksa</button><button class="btn ghost" data-act="hint">Petunjuk</button></div>
+      <div class="fb"></div><div class="explain"></div>
+    </div>
+
+    <div class="q" data-q="k2d">
+      <div class="q-head"><span class="q-no">2d</span><p class="q-title">Lengkapi aturan penjumlahan.</p></div>
+      <p>Aturan penjumlahan dipakai jika pilihan dihubungkan dengan kata
+        <select class="sel" id="k2w1" aria-label="Kata hubung"><option value="">pilih…</option><option>atau</option><option>dan</option></select>
+        dan kejadiannya
+        <select class="sel" id="k2w2" aria-label="Sifat kejadian"><option value="">pilih…</option><option>terjadi bersamaan</option><option>tidak terjadi bersamaan</option></select>.</p>
+      <div class="actions"><button class="btn main" data-act="check">Periksa</button></div>
+      <div class="fb"></div><div class="explain"></div>
+    </div>
+    <div class="nav"><button class="btn ghost" data-go="1">Kembali</button><button class="btn main" data-go="3">Lanjut ke Kegiatan 3</button></div>
+  </section>
+
+  <!-- ============ KEGIATAN 3 ============ -->
+  <section class="panel" id="p3">
+    <h2>Kegiatan 3 · Kejadian yang beririsan</h2>
+    <div class="story">Dalam satu kelas, <b class="k">12 siswa</b> mengikuti Pramuka, <b class="k">9 siswa</b> mengikuti PMR, dan <b class="k">4 siswa</b> mengikuti keduanya. Seorang siswa akan dipilih mewakili sekolah, yaitu siswa Pramuka <b class="k">atau</b> PMR.</div>
+
+    <div class="q" data-q="k3venn">
+      <div class="q-head"><span class="q-no">3a</span><p class="q-title">Isi tiga bagian diagram Venn dengan banyak siswa pada tiap bagian.</p></div>
+      <div class="venn">
+        <div class="c a"></div><div class="c b"></div>
+        <span class="cap a">Pramuka = 12</span><span class="cap b">PMR = 9</span>
+        <input id="va" inputmode="numeric" style="left:20%" aria-label="Hanya Pramuka"><input id="vb" inputmode="numeric" style="left:50%" aria-label="Keduanya"><input id="vc" inputmode="numeric" style="left:80%" aria-label="Hanya PMR">
+        <span class="lab" style="left:20%">hanya Pramuka</span><span class="lab" style="left:50%">keduanya</span><span class="lab" style="left:80%">hanya PMR</span>
+      </div>
+      <div class="actions"><button class="btn main" data-act="check">Periksa</button><button class="btn ghost" data-act="hint">Petunjuk</button></div>
+      <div class="fb"></div><div class="explain"></div>
+    </div>
+
+    <div class="q" data-q="k3total">
+      <div class="q-head"><span class="q-no">3b</span><p class="q-title">Berapa siswa yang dapat dipilih (Pramuka atau PMR)?</p></div>
+      <div class="row"><input class="num" id="k3total" inputmode="numeric" aria-label="Total siswa"><span>siswa</span></div>
+      <div class="actions"><button class="btn main" data-act="check">Periksa</button><button class="btn ghost" data-act="hint">Petunjuk</button></div>
+      <div class="fb"></div><div class="explain"></div>
+    </div>
+
+    <div class="q" data-q="k3why">
+      <div class="q-head"><span class="q-no">3c</span><p class="q-title">Andi menjawab 12 + 9 = 21. Mengapa jawaban Andi kurang tepat?</p></div>
+      <div class="opts" data-group="k3why">
+        <button class="opt" data-v="a" aria-pressed="false">Karena 4 siswa yang mengikuti keduanya terhitung dua kali</button>
+        <button class="opt" data-v="b" aria-pressed="false">Karena jumlah siswa Pramuka seharusnya 9</button>
+        <button class="opt" data-v="c" aria-pressed="false">Karena seharusnya dikalikan: 12 × 9</button>
+        <button class="opt" data-v="d" aria-pressed="false">Karena siswa PMR tidak boleh dihitung</button>
+      </div>
+      <div class="actions"><button class="btn main" data-act="check">Periksa</button><button class="btn ghost" data-act="hint">Petunjuk</button></div>
+      <div class="fb"></div><div class="explain"></div>
+    </div>
+    <div class="nav"><button class="btn ghost" data-go="2">Kembali</button><button class="btn main" data-go="4">Lanjut ke Kegiatan 4</button></div>
+  </section>
+
+  <!-- ============ KEGIATAN 4 ============ -->
+  <section class="panel" id="p4">
+    <h2>Kegiatan 4 · Latihan soal</h2>
+
+    <div class="q" data-q="k4s1">
+      <div class="q-head"><span class="q-no">1</span><p class="q-title">Rina memiliki 3 kaos (merah, biru, putih) dan 2 celana (hitam, krem). Ketuk semua pasangan kaos–celana yang mungkin, lalu tulis banyaknya.<span class="lvl">Mudah</span></p></div>
+      <div class="pairs" id="pairs"></div>
+      <div class="row"><span>Banyak pasangan:</span><input class="num" id="k4s1" inputmode="numeric" aria-label="Banyak pasangan"></div>
+      <div class="actions"><button class="btn main" data-act="check">Periksa</button><button class="btn ghost" data-act="hint">Petunjuk</button></div>
+      <div class="fb"></div><div class="explain"></div>
+    </div>
+
+    <div class="q" data-q="k4s2">
+      <div class="q-head"><span class="q-no">2</span><p class="q-title">Sebuah kantin menyediakan 4 menu nasi, 3 menu mi, dan 2 menu bubur. Jika Dito hanya boleh memilih satu menu, ada berapa cara Dito memilih?<span class="lvl">Sedang</span></p></div>
+      <div class="opts" data-group="k4s2">
+        <button class="opt" data-v="tambah" aria-pressed="false">Jumlahkan banyak pilihan tiap kelompok</button>
+        <button class="opt" data-v="kali" aria-pressed="false">Kalikan banyak pilihan tiap kelompok</button>
+      </div>
+      <div class="row"><span>Banyak cara:</span><input class="num" id="k4s2" inputmode="numeric" aria-label="Banyak cara"></div>
+      <div class="actions"><button class="btn main" data-act="check">Periksa</button><button class="btn ghost" data-act="hint">Petunjuk</button></div>
+      <div class="fb"></div><div class="explain"></div>
+    </div>
+
+    <div class="q" data-q="k4s3">
+      <div class="q-head"><span class="q-no">3</span><p class="q-title">Sebuah koin dan sebuah dadu dilempar bersamaan. Ketuk sel pada tabel yang menunjukkan sisi <b>Angka dengan mata dadu genap</b>, lalu isi banyak hasilnya.<span class="lvl">Sedang</span></p></div>
+      <div class="scroll"><table class="t" id="coin"></table></div>
+      <div class="row"><span>Seluruh hasil:</span><input class="num" id="k4all" inputmode="numeric" aria-label="Seluruh hasil"><span>Angka dan genap:</span><input class="num" id="k4ev" inputmode="numeric" aria-label="Hasil Angka dan genap"></div>
+      <div class="actions"><button class="btn main" data-act="check">Periksa</button><button class="btn ghost" data-act="hint">Petunjuk</button></div>
+      <div class="fb"></div><div class="explain"></div>
+    </div>
+
+    <div class="q" data-q="k4t">
+      <div class="q-head"><span class="q-no">T</span><p class="q-title">Dari 40 siswa kelas XII, 25 siswa gemar basket, 18 siswa gemar voli, dan 8 siswa gemar keduanya. Seorang siswa dipilih mewakili sekolah untuk lomba basket atau voli. Ada berapa cara memilihnya?<span class="lvl t">Tantangan</span></p></div>
+      <div class="row"><span>Hanya basket</span><input class="num" id="tb" inputmode="numeric" aria-label="Hanya basket"><span>keduanya</span><input class="num" id="tk" inputmode="numeric" aria-label="Keduanya"><span>hanya voli</span><input class="num" id="tv" inputmode="numeric" aria-label="Hanya voli"></div>
+      <div class="row"><span>Total cara:</span><input class="num" id="tt" inputmode="numeric" aria-label="Total cara"></div>
+      <p style="margin:0;font-weight:700">Mengapa jawabannya tidak sama dengan 25 + 18?</p>
+      <div class="opts" data-group="k4t">
+        <button class="opt" data-v="a" aria-pressed="false">Karena 8 siswa yang gemar keduanya terhitung dua kali jika hanya dijumlahkan</button>
+        <button class="opt" data-v="b" aria-pressed="false">Karena 25 + 18 selalu kurang dari jawaban sebenarnya</button>
+        <button class="opt" data-v="c" aria-pressed="false">Karena jumlah siswa gemar voli harus dikalikan dengan 8</button>
+      </div>
+      <div class="actions"><button class="btn main" data-act="check">Periksa</button><button class="btn ghost" data-act="hint">Petunjuk</button></div>
+      <div class="fb"></div><div class="explain"></div>
+    </div>
+    <div class="nav"><button class="btn ghost" data-go="3">Kembali</button><button class="btn main" data-go="5">Lanjut ke Simpulan</button></div>
+  </section>
+
+  <!-- ============ SIMPULAN ============ -->
+  <section class="panel" id="p5">
+    <h2>Simpulan dan refleksi</h2>
+    <div class="q" data-q="k5">
+      <div class="q-head"><span class="q-no">5a</span><p class="q-title">Lengkapi simpulan kelompokmu.</p></div>
+      <p>1. Diagram pohon dan tabel silang berguna untuk
+        <select class="sel" id="s1" aria-label="Kegunaan"><option value="">pilih…</option><option value="ok">mendaftar kemungkinan secara teratur</option><option value="no">menebak jawaban dengan cepat</option></select></p>
+      <p>2. Aturan penjumlahan dipakai jika pilihan dihubungkan dengan kata
+        <select class="sel" id="s2" aria-label="Kata hubung"><option value="">pilih…</option><option value="ok">atau (tidak terjadi bersamaan)</option><option value="no">dan (dilakukan berurutan)</option></select></p>
+      <p>3. Jika dua kejadian beririsan, banyak caranya dihitung dengan
+        <select class="sel" id="s3" aria-label="Rumus"><option value="">pilih…</option><option value="no">n(A) + n(B)</option><option value="ok">n(A) + n(B) − n(A ∩ B)</option><option value="no2">n(A) × n(B)</option></select></p>
+      <div class="actions"><button class="btn main" data-act="check">Periksa</button></div>
+      <div class="fb"></div><div class="explain"></div>
+    </div>
+
+    <div class="q">
+      <div class="q-head"><span class="q-no">5b</span><p class="q-title">Penilaian diri. Seberapa yakin kamu?</p></div>
+      <div class="rate" id="rate"></div>
+    </div>
+
+    <div class="summary">
+      <div>Hasil kerjamu</div>
+      <div class="big" id="sbig">0 / 16</div>
+      <div id="smsg">Selesaikan soal-soal di setiap kegiatan untuk melihat hasilmu.</div>
+      <div class="actions"><button class="btn main" id="copy">Salin ringkasan untuk guru</button></div>
+      <div class="fb" id="copyfb" style="color:var(--ink)"></div>
+      <textarea id="copybox" readonly hidden aria-label="Ringkasan hasil"></textarea>
+    </div>
+    <div class="nav"><button class="btn ghost" data-go="4">Kembali</button><span></span></div>
+  </section>
+</div>
+
+<script>
+(function () {
+  var TOTAL = 16;
+  var solved = {};          // id -> true
+  var attempts = {};        // id -> jumlah salah
+  var hintIdx = {};
+  var rating = {};
+  var cur = 1;
+
+  var STEPS = ['Kegiatan 1', 'Kegiatan 2', 'Kegiatan 3', 'Kegiatan 4', 'Simpulan'];
+  var STEP_IDS = [['k1tree','k1table','k1count','k1open'], ['k2a','k2b','k2c','k2d'], ['k3venn','k3total','k3why'], ['k4s1','k4s2','k4s3','k4t'], ['k5']];
+
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function val(id) { var v = $('#' + id).value.trim().replace(',', '.'); return v === '' ? NaN : Number(v); }
+  function mark(el, ok) { el.classList.remove('ok', 'err'); el.classList.add(ok ? 'ok' : 'err'); }
+  function clear(els) { els.forEach(function (e) { e.classList.remove('ok', 'err'); }); }
+  function norm(s) { return s.toLowerCase().replace(/[^a-z]/g, ' ').replace(/\s+/g, ' '); }
+  function store(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  function load(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
+
+  /* ---------- stepper ---------- */
+  var stepsEl = $('#steps');
+  STEPS.forEach(function (name, i) {
+    var b = document.createElement('button');
+    b.className = 'step'; b.type = 'button'; b.dataset.step = i + 1;
+    b.innerHTML = '<span class="dot">' + (i + 1) + '</span><span>' + name + '</span>';
+    b.addEventListener('click', function () { go(i + 1); });
+    stepsEl.appendChild(b);
+  });
+  function go(n) {
+    cur = n;
+    $$('.panel').forEach(function (p) { p.classList.toggle('on', p.id === 'p' + n); });
+    $$('.step').forEach(function (s) { s.setAttribute('aria-current', String(Number(s.dataset.step) === n)); });
+    var active = $('.step[aria-current="true"]'); if (active && active.scrollIntoView) active.scrollIntoView({ block: 'nearest', inline: 'center' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  $$('[data-go]').forEach(function (b) { b.addEventListener('click', function () { go(Number(b.dataset.go)); }); });
+
+  /* ---------- progress ---------- */
+  function refresh() {
+    var n = Object.keys(solved).length, pct = Math.round(n / TOTAL * 100);
+    $('#mtxt').textContent = n + ' dari ' + TOTAL + ' selesai';
+    $('#mpct').textContent = pct + '%';
+    $('#mfill').style.width = pct + '%';
+    $('#mbar').setAttribute('aria-valuenow', pct);
+    STEP_IDS.forEach(function (ids, i) {
+      var all = ids.every(function (id) { return solved[id]; });
+      $$('.step')[i].classList.toggle('done', all);
+      if (all) $$('.step')[i].querySelector('.dot').textContent = '✓';
+    });
+    $('#sbig').textContent = n + ' / ' + TOTAL;
+    $('#smsg').textContent = n === TOTAL ? 'Hebat! Semua soal selesai. Salin ringkasan dan kirim ke gurumu.' : n >= 11 ? 'Hampir selesai. Periksa lagi soal yang belum ditandai hijau.' : 'Selesaikan soal-soal di setiap kegiatan untuk melihat hasilmu.';
+  }
+
+  /* ---------- umpan balik ---------- */
+  function fb(q, kind, html) { var f = $('.fb', q); f.className = 'fb show ' + kind; f.innerHTML = html; }
+  function done(q, id, msg, explain) {
+    solved[id] = true; q.classList.add('solved');
+    fb(q, 'good', '<span class="tag">Benar!</span> ' + msg);
+    var ex = $('.explain', q); if (ex && explain) { ex.innerHTML = '<b>Pembahasan.</b> ' + explain; ex.classList.add('show'); }
+    $$('button[data-act="check"], button[data-act="hint"]', q).forEach(function (b) { b.disabled = true; });
+    refresh();
+  }
+  function wrong(q, id, msg, explain) {
+    attempts[id] = (attempts[id] || 0) + 1;
+    var extra = '';
+    if (attempts[id] >= 2 && explain) extra = ' <button class="btn ghost" data-act="reveal" style="margin-top:8px">Lihat pembahasan</button>';
+    fb(q, 'bad', '<span class="tag">Belum tepat.</span> ' + msg + extra);
+    var rv = $('[data-act="reveal"]', q);
+    if (rv) rv.addEventListener('click', function () { var ex = $('.explain', q); ex.innerHTML = '<b>Pembahasan.</b> ' + explain; ex.classList.add('show'); });
+  }
+
+  /* ---------- pilihan (opt) ---------- */
+  var picked = {};
+  $$('.opts').forEach(function (g) {
+    $$('.opt', g).forEach(function (o) {
+      o.addEventListener('click', function () {
+        if (g.closest('.q').classList.contains('solved')) return;
+        $$('.opt', g).forEach(function (x) { x.setAttribute('aria-pressed', 'false'); x.classList.remove('ok', 'err'); });
+        o.setAttribute('aria-pressed', 'true'); picked[g.dataset.group] = o.dataset.v;
+      });
+    });
+  });
+  function markOpt(group, ok) { var g = $('[data-group="' + group + '"]'); var o = $('.opt[aria-pressed="true"]', g); if (o) { o.classList.remove('ok', 'err'); o.classList.add(ok ? 'ok' : 'err'); } }
+
+  /* ---------- tree 1a ---------- */
+  var NASI = ['Nasi goreng', 'Nasi kuning', 'Nasi campur'];
+  var DRINK = { teh: 'Es teh', jus: 'Jus jeruk' };
+  var leafChoice = [null, null, null, null, null, null];
+  var tree = $('#tree');
+  tree.innerHTML = '<div class="root">Mulai: pilih paket</div>';
+  NASI.forEach(function (n, i) {
+    var br = document.createElement('div'); br.className = 'branch';
+    br.innerHTML = '<div class="nasi">' + n + '</div><div class="leaves"></div>';
+    var lv = $('.leaves', br);
+    [0, 1].forEach(function (j) {
+      var idx = i * 2 + j, leaf = document.createElement('div'); leaf.className = 'leaf';
+      leaf.innerHTML = '<button class="chip" type="button" data-k="teh" aria-pressed="false">Es teh</button><button class="chip" type="button" data-k="jus" aria-pressed="false">Jus jeruk</button><span class="result" id="res' + idx + '"></span>';
+      $$('.chip', leaf).forEach(function (c) {
+        c.addEventListener('click', function () {
+          if ($('[data-q="k1tree"]').classList.contains('solved')) return;
+          leafChoice[idx] = c.dataset.k;
+          $$('.chip', leaf).forEach(function (x) { x.setAttribute('aria-pressed', String(x === c)); });
+          var r = $('#res' + idx); r.className = 'result'; r.textContent = '→ ' + n.replace('Nasi ', '') + ' + ' + DRINK[c.dataset.k];
+        });
+      });
+      lv.appendChild(leaf);
+    });
+    tree.appendChild(br);
+  });
+
+  /* ---------- tabel silang 1b ---------- */
+  var ROWS = ['goreng', 'kuning', 'campur'], COLS = ['teh', 'jus'];
+  var ts = $('#tsilang');
+  ts.innerHTML = '<tr><th>Nasi \\ Minuman</th><th>Es teh</th><th>Jus jeruk</th></tr>' + ROWS.map(function (r, i) {
+    return '<tr><th class="side">Nasi ' + r + '</th>' + COLS.map(function (c, j) { return '<td><input class="cellin" id="ts' + i + j + '" autocomplete="off" aria-label="Nasi ' + r + ' dan ' + (c === 'teh' ? 'es teh' : 'jus jeruk') + '" placeholder="…"></td>'; }).join('') + '</tr>';
+  }).join('');
+
+  /* ---------- pasangan soal 1 ---------- */
+  var KAOS = ['merah', 'biru', 'putih'], CEL = ['hitam', 'krem'], pairSel = {};
+  var pairsEl = $('#pairs');
+  KAOS.forEach(function (k) { CEL.forEach(function (c) {
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.setAttribute('aria-pressed', 'false'); b.textContent = 'Kaos ' + k + ' + celana ' + c; b.dataset.key = k + '-' + c;
+    b.addEventListener('click', function () { if ($('[data-q="k4s1"]').classList.contains('solved')) return; pairSel[b.dataset.key] = !pairSel[b.dataset.key]; b.setAttribute('aria-pressed', String(pairSel[b.dataset.key])); });
+    pairsEl.appendChild(b);
+  }); });
+
+  /* ---------- tabel koin & dadu ---------- */
+  var coinSel = {};
+  var coin = $('#coin');
+  coin.innerHTML = '<tr><th>Koin \\ Dadu</th>' + [1,2,3,4,5,6].map(function (n) { return '<th>' + n + '</th>'; }).join('') + '</tr>' + ['A', 'G'].map(function (s) {
+    return '<tr><th class="side">' + (s === 'A' ? 'Angka (A)' : 'Gambar (G)') + '</th>' + [1,2,3,4,5,6].map(function (n) { return '<td><button type="button" class="cell" aria-pressed="false" data-k="' + s + n + '">' + s + ',' + n + '</button></td>'; }).join('') + '</tr>';
+  }).join('');
+  $$('.cell', coin).forEach(function (c) { c.addEventListener('click', function () { if ($('[data-q="k4s3"]').classList.contains('solved')) return; coinSel[c.dataset.k] = !coinSel[c.dataset.k]; c.setAttribute('aria-pressed', String(!!coinSel[c.dataset.k])); c.classList.remove('ok', 'err'); }); });
+
+  /* ---------- penilaian diri ---------- */
+  var RATES = ['Saya dapat membuat diagram pohon dan tabel silang', 'Saya dapat memakai aturan penjumlahan', 'Saya dapat menangani kejadian yang beririsan'];
+  var LEV = ['Belum', 'Cukup', 'Sudah'];
+  $('#rate').innerHTML = RATES.map(function (t, i) { return '<div class="rate-row"><span>' + t + '</span><div class="opts-r">' + LEV.map(function (l, j) { return '<button type="button" class="chip" data-r="' + i + '" data-l="' + j + '" aria-pressed="false">' + l + '</button>'; }).join('') + '</div></div>'; }).join('');
+  $$('#rate .chip').forEach(function (c) { c.addEventListener('click', function () { var i = c.dataset.r; rating[i] = LEV[c.dataset.l]; $$('#rate .chip[data-r="' + i + '"]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === c)); }); }); });
+
+  /* ---------- soal ---------- */
+  var Q = {
+    k1tree: {
+      hints: ['Setiap nasi punya dua cabang. Dua cabang itu harus berbeda: satu es teh, satu jus jeruk.', 'Jalur dari Mulai ke ujung cabang menunjukkan satu paket. Kamu perlu 6 ujung cabang.'],
+      explain: 'Tiga nasi, masing-masing bercabang ke dua minuman, menghasilkan 6 ujung cabang. Setiap jalur dari titik awal sampai ujung adalah satu paket yang berbeda.',
+      check: function (q) {
+        if (leafChoice.some(function (x) { return !x; })) return { ok: false, msg: 'Masih ada cabang yang belum dipilih. Lengkapi semua cabang.' };
+        var bad = [];
+        for (var i = 0; i < 3; i++) if (leafChoice[2 * i] === leafChoice[2 * i + 1]) bad.push(i);
+        for (var k = 0; k < 6; k++) { var r = $('#res' + k); r.classList.remove('ok', 'err'); r.classList.add(bad.indexOf(Math.floor(k / 2)) < 0 ? 'ok' : 'err'); }
+        if (bad.length) return { ok: false, msg: 'Pada ' + bad.map(function (i) { return NASI[i].toLowerCase(); }).join(' dan ') + ', kedua cabang minuman harus berbeda agar semua kemungkinan terdaftar.' };
+        return { ok: true, msg: 'Diagram pohonmu memuat 6 paket yang berbeda.' };
+      }
+    },
+    k1table: {
+      hints: ['Baris menunjukkan jenis nasi dan kolom menunjukkan jenis minuman. Setiap sel memasangkan keduanya.', 'Contoh sel pertama: Goreng + Teh.'],
+      explain: 'Tabel 3 baris × 2 kolom memiliki 6 sel. Setiap sel adalah satu paket, sehingga hasilnya sama dengan diagram pohon.',
+      check: function () {
+        var inputs = [], okAll = true, empty = false;
+        ROWS.forEach(function (r, i) { COLS.forEach(function (c, j) {
+          var el = $('#ts' + i + j); inputs.push(el); var t = norm(el.value);
+          if (!t.trim()) { empty = true; mark(el, false); okAll = false; return; }
+          var good = t.indexOf(r) >= 0 && t.indexOf(c) >= 0; mark(el, good); if (!good) okAll = false;
+        }); });
+        if (empty) return { ok: false, msg: 'Masih ada sel yang kosong. Isi semua sel.' };
+        if (!okAll) return { ok: false, msg: 'Sel yang berwarna merah belum cocok dengan baris dan kolomnya. Tulis jenis nasi dan minumannya, misalnya “Kuning + Jus”.' };
+        return { ok: true, msg: 'Semua sel terisi dengan pasangan yang tepat.' };
+      }
+    },
+    k1count: {
+      hints: ['Hitung banyak ujung cabang pada diagram pohon, atau banyak sel pada tabel silang.', 'Ada 3 baris dan masing-masing punya 2 pilihan minuman.'],
+      explain: 'Tiap nasi punya 2 paket: 2 + 2 + 2 = 6 paket. Cara singkatnya, 3 nasi dipasangkan dengan 2 minuman: 3 × 2 = 6. Aturan perkalian dibahas lebih lanjut di pertemuan 2.',
+      check: function () { var v = val('k1count'); mark($('#k1count'), v === 6); if (isNaN(v)) return { ok: false, msg: 'Isi dulu jawabanmu.' }; return v === 6 ? { ok: true, msg: 'Ada 6 paket.' } : { ok: false, msg: 'Cocokkan dengan jumlah ujung cabang pada diagram pohonmu.' }; }
+    },
+    k1open: {
+      explain: 'Contoh jawaban: Tidak praktis, karena ada sangat banyak kemungkinan, mudah ada yang terlewat atau tertulis dua kali, dan memakan waktu lama. Kita perlu cara yang lebih cepat dan teratur, yang akan dipelajari pada aturan perkalian.',
+      check: function () { var t = $('#k1open').value.trim(); if (t.length < 15) return { ok: false, msg: 'Tulis alasanmu dengan minimal satu kalimat lengkap.', noCount: true }; return { ok: true, msg: 'Jawabanmu tersimpan. Bandingkan dengan contoh jawaban di bawah.' }; }
+    },
+    k2a: {
+      explain: 'Bus ada 3 pilihan dan travel ada 2 pilihan, sesuai cerita.',
+      check: function () { var a = val('k2bus'), b = val('k2trv'); mark($('#k2bus'), a === 3); mark($('#k2trv'), b === 2); if (isNaN(a) || isNaN(b)) return { ok: false, msg: 'Isi kedua kotak.' }; return a === 3 && b === 2 ? { ok: true, msg: 'Bus 3 pilihan, travel 2 pilihan.' } : { ok: false, msg: 'Baca lagi ceritanya: berapa pilihan bus dan berapa pilihan travel?' }; }
+    },
+    k2b: {
+      hints: ['Dani hanya boleh memilih satu kendaraan untuk satu perjalanan.'],
+      explain: 'Dani memilih salah satu saja, bus atau travel. Jadi kedua kejadian tidak mungkin terjadi bersamaan (saling lepas), dan banyak caranya boleh dijumlahkan.',
+      check: function () { var v = picked.k2b; if (!v) return { ok: false, msg: 'Pilih salah satu jawaban.' }; markOpt('k2b', v === 'tidak'); return v === 'tidak' ? { ok: true, msg: 'Kedua kejadian tidak terjadi bersamaan.' } : { ok: false, msg: 'Ingat, Dani hanya memilih satu kendaraan.' }; }
+    },
+    k2c: {
+      hints: ['Ambil banyak pilihan bus dan banyak pilihan travel dari 2a.', 'Karena pilihannya “bus atau travel”, hubungkan keduanya dengan tanda tambah.'],
+      explain: 'Banyak cara = banyak pilihan bus + banyak pilihan travel = 3 + 2 = 5 cara.',
+      check: function () { var m = val('k2m'), n = val('k2n'), t = val('k2t'); if (isNaN(m) || isNaN(n) || isNaN(t)) return { ok: false, msg: 'Isi ketiga kotak.' };
+        var okMN = (m === 3 && n === 2) || (m === 2 && n === 3); mark($('#k2m'), okMN); mark($('#k2n'), okMN); mark($('#k2t'), t === 5);
+        if (!okMN) return { ok: false, msg: 'Dua bilangan yang dijumlahkan adalah banyak pilihan bus dan travel.' };
+        return t === 5 ? { ok: true, msg: '3 + 2 = 5 cara.' } : { ok: false, msg: 'Jumlahkan kedua bilangan dengan teliti.' }; }
+    },
+    k2d: {
+      explain: 'Aturan penjumlahan: jika kejadian A dapat terjadi dengan m cara dan kejadian B dengan n cara, dan keduanya tidak terjadi bersamaan, maka A atau B dapat terjadi dengan (m + n) cara.',
+      check: function () { var a = $('#k2w1'), b = $('#k2w2'); if (!a.value || !b.value) return { ok: false, msg: 'Pilih jawaban pada kedua isian.' }; mark(a, a.value === 'atau'); mark(b, b.value === 'tidak terjadi bersamaan'); return a.value === 'atau' && b.value === 'tidak terjadi bersamaan' ? { ok: true, msg: 'Kata hubungnya “atau” dan kejadiannya tidak terjadi bersamaan.' } : { ok: false, msg: 'Periksa lagi isian yang berwarna merah.' }; }
+    },
+    k3venn: {
+      hints: ['Siswa yang ikut keduanya ada 4. Itulah bagian tengah.', 'Bagian kiri hanya Pramuka: 12 dikurangi yang ikut keduanya. Bagian kanan hanya PMR: 9 dikurangi yang ikut keduanya.'],
+      explain: 'Hanya Pramuka = 12 − 4 = 8. Keduanya = 4. Hanya PMR = 9 − 4 = 5. Pramuka seluruhnya = 8 + 4 = 12 dan PMR seluruhnya = 4 + 5 = 9.',
+      check: function () { var ids = ['va', 'vb', 'vc'], want = [8, 4, 5], ok = true; ids.forEach(function (id, i) { var v = val(id); var g = v === want[i]; mark($('#' + id), g); if (!g) ok = false; }); if (ids.some(function (id) { return isNaN(val(id)); })) return { ok: false, msg: 'Isi ketiga bagian.' }; return ok ? { ok: true, msg: 'Bagian kirinya 8, tengah 4, kanan 5.' } : { ok: false, msg: 'Bagian tengah dihitung dua kali pada 12 dan 9, jadi kurangi dulu sebelum mengisi bagian kiri dan kanan.' }; }
+    },
+    k3total: {
+      hints: ['Jumlahkan ketiga bagian pada diagram Venn.', 'Atau pakai rumus n(A ∪ B) = n(A) + n(B) − n(A ∩ B).'],
+      explain: '8 + 4 + 5 = 17 siswa. Dengan rumus: 12 + 9 − 4 = 17.',
+      check: function () { var v = val('k3total'); if (isNaN(v)) return { ok: false, msg: 'Isi dulu jawabanmu.' }; mark($('#k3total'), v === 17); if (v === 21) return { ok: false, msg: '21 menghitung 4 siswa yang ikut keduanya sebanyak dua kali.' }; return v === 17 ? { ok: true, msg: '17 siswa dapat dipilih.' } : { ok: false, msg: 'Jumlahkan hanya Pramuka, keduanya, dan hanya PMR.' }; }
+    },
+    k3why: {
+      hints: ['Perhatikan 4 siswa yang ikut Pramuka sekaligus PMR. Berapa kali mereka dihitung pada 12 + 9?'],
+      explain: '4 siswa yang mengikuti keduanya sudah terhitung di 12 (Pramuka) dan di 9 (PMR). Jadi mereka terhitung dua kali, dan hasilnya harus dikurangi 4: 12 + 9 − 4 = 17.',
+      check: function () { var v = picked.k3why; if (!v) return { ok: false, msg: 'Pilih salah satu jawaban.' }; markOpt('k3why', v === 'a'); return v === 'a' ? { ok: true, msg: 'Siswa yang ikut keduanya terhitung dua kali.' } : { ok: false, msg: 'Pikirkan siswa yang berada di bagian irisan.' }; }
+    },
+    k4s1: {
+      hints: ['Setiap kaos dipasangkan dengan kedua celana. Mulai dari kaos merah.', 'Kaos merah punya 2 pasangan, begitu juga biru dan putih.'],
+      explain: 'Diagram pohon: tiap kaos (merah, biru, putih) punya 2 cabang celana (hitam, krem). Pasangannya: (merah, hitam), (merah, krem), (biru, hitam), (biru, krem), (putih, hitam), (putih, krem). Jadi ada 6 pasangan.',
+      check: function () { var n = Object.keys(pairSel).filter(function (k) { return pairSel[k]; }).length; var v = val('k4s1'); if (n < 6) return { ok: false, msg: 'Kamu baru memilih ' + n + ' pasangan. Masih ada pasangan yang belum diketuk.' }; if (isNaN(v)) return { ok: false, msg: 'Tulis banyak pasangannya.' }; mark($('#k4s1'), v === 6); return v === 6 ? { ok: true, msg: 'Keenam pasangan terdaftar dan jumlahnya 6.' } : { ok: false, msg: 'Semua pasangan sudah dipilih. Hitung ulang jumlahnya.' }; }
+    },
+    k4s2: {
+      hints: ['Nasi, mi, dan bubur adalah kelompok yang terpisah. Dito memilih satu menu saja.', 'Pilihan “nasi atau mi atau bubur” dihubungkan dengan penjumlahan.'],
+      explain: 'Dito hanya memilih satu menu dari tiga kelompok yang berbeda (kata kunci “atau”), sehingga dijumlahkan: 4 + 3 + 2 = 9 cara. Kesalahan umum: mengalikan 4 × 3 × 2 = 24, padahal menu tidak dipasangkan.',
+      check: function () { var r = picked.k4s2, v = val('k4s2'); if (!r) return { ok: false, msg: 'Pilih dulu aturan yang dipakai.' }; if (isNaN(v)) return { ok: false, msg: 'Isi banyak caranya.' }; markOpt('k4s2', r === 'tambah'); mark($('#k4s2'), v === 9);
+        if (r === 'kali') return { ok: false, msg: 'Dito hanya memilih satu menu, bukan memasangkan beberapa menu. Pikirkan lagi aturan yang dipakai.' };
+        return v === 9 ? { ok: true, msg: '4 + 3 + 2 = 9 cara.' } : { ok: false, msg: 'Aturannya sudah tepat. Periksa lagi penjumlahannya.' }; }
+    },
+    k4s3: {
+      hints: ['Baris Angka (A) saja yang dipakai, karena syaratnya Angka.', 'Mata dadu genap: 2, 4, dan 6.'],
+      explain: 'Seluruh hasil = 2 baris × 6 kolom = 12 hasil. Angka dengan dadu genap: (A,2), (A,4), (A,6) = 3 hasil.',
+      check: function () { var want = ['A2', 'A4', 'A6'], sel = Object.keys(coinSel).filter(function (k) { return coinSel[k]; }); var all = val('k4all'), ev = val('k4ev');
+        var cellsOk = sel.length === 3 && want.every(function (w) { return sel.indexOf(w) >= 0; });
+        $$('.cell', coin).forEach(function (c) { c.classList.remove('ok', 'err'); if (coinSel[c.dataset.k]) c.classList.add(want.indexOf(c.dataset.k) >= 0 ? 'ok' : 'err'); });
+        if (!sel.length) return { ok: false, msg: 'Ketuk sel pada tabel yang memenuhi syarat.' }; if (isNaN(all) || isNaN(ev)) return { ok: false, msg: 'Isi kedua jumlah hasil.' };
+        mark($('#k4all'), all === 12); mark($('#k4ev'), ev === 3);
+        if (!cellsOk) return { ok: false, msg: 'Sel yang dipilih belum tepat. Syaratnya Angka dan mata dadu genap (2, 4, 6).' };
+        if (all !== 12) return { ok: false, msg: 'Sel yang kamu pilih sudah tepat. Seluruh hasil sama dengan banyak sel pada tabel.' };
+        return ev === 3 ? { ok: true, msg: '12 hasil seluruhnya, 3 di antaranya Angka dengan dadu genap.' } : { ok: false, msg: 'Banyak hasil yang memenuhi syarat sama dengan banyak sel yang kamu pilih.' }; }
+    },
+    k4t: {
+      hints: ['Bagian “hanya basket” = 25 − 8. Bagian “hanya voli” = 18 − 8.', 'Jumlahkan tiga bagian yang tidak saling tumpang tindih: hanya basket, keduanya, hanya voli.'],
+      explain: 'Hanya basket 25 − 8 = 17; keduanya 8; hanya voli 18 − 8 = 10. Total 17 + 8 + 10 = 35. Dengan rumus: 25 + 18 − 8 = 35. Hasil 25 + 18 = 43 keliru karena 8 siswa terhitung dua kali, dan 43 bahkan melebihi jumlah siswa (40).',
+      check: function () { var a = val('tb'), k = val('tk'), v = val('tv'), t = val('tt'), r = picked.k4t; if ([a, k, v, t].some(isNaN)) return { ok: false, msg: 'Isi keempat kotak.' }; if (!r) return { ok: false, msg: 'Pilih juga alasannya.' };
+        mark($('#tb'), a === 17); mark($('#tk'), k === 8); mark($('#tv'), v === 10); mark($('#tt'), t === 35); markOpt('k4t', r === 'a');
+        if (a !== 17 || k !== 8 || v !== 10) return { ok: false, msg: 'Kurangi dulu irisan 8 dari 25 dan dari 18 untuk mendapat bagian “hanya”.' };
+        if (t !== 35) return { ok: false, msg: 'Bagian-bagiannya sudah benar. Jumlahkan ketiganya.' };
+        return r === 'a' ? { ok: true, msg: 'Totalnya 35 cara, dan alasanmu tepat.' } : { ok: false, msg: 'Jawaban hitunganmu benar. Pikirkan lagi alasan mengapa bukan 25 + 18.' }; }
+    },
+    k5: {
+      explain: 'Diagram pohon dan tabel silang mendaftar kemungkinan secara teratur. Aturan penjumlahan dipakai untuk pilihan “atau” yang tidak terjadi bersamaan. Jika beririsan, banyak caranya n(A) + n(B) − n(A ∩ B).',
+      check: function () { var ids = ['s1', 's2', 's3'], ok = true; ids.forEach(function (id) { var e = $('#' + id); if (!e.value) { ok = false; return; } mark(e, e.value === 'ok'); if (e.value !== 'ok') ok = false; }); if (ids.some(function (id) { return !$('#' + id).value; })) return { ok: false, msg: 'Lengkapi ketiga simpulan.' }; return ok ? { ok: true, msg: 'Simpulanmu tepat.' } : { ok: false, msg: 'Periksa kembali isian yang berwarna merah.' }; }
+    }
+  };
+
+  /* ---------- tombol periksa / petunjuk ---------- */
+  $$('.q[data-q]').forEach(function (q) {
+    var id = q.dataset.q, def = Q[id];
+    var chk = $('[data-act="check"]', q), hnt = $('[data-act="hint"]', q);
+    if (chk) chk.addEventListener('click', function () {
+      var r = def.check(q);
+      if (r.ok) done(q, id, r.msg, def.explain); else if (r.noCount) fb(q, 'bad', r.msg); else wrong(q, id, r.msg, def.explain);
+    });
+    if (hnt) hnt.addEventListener('click', function () {
+      var i = hintIdx[id] || 0; var list = def.hints || []; if (!list.length) return;
+      fb(q, 'hint', '<span class="tag">Petunjuk ' + (Math.min(i, list.length - 1) + 1) + ':</span> ' + list[Math.min(i, list.length - 1)]);
+      hintIdx[id] = Math.min(i + 1, list.length - 1 + 1);
+      if (i >= list.length - 1) hintIdx[id] = list.length - 1;
+    });
+  });
+
+  /* ---------- identitas & salin ---------- */
+  ['nama', 'kelompok'].forEach(function (id) { var el = $('#' + id); el.value = load('elkpd_' + id); el.addEventListener('input', function () { store('elkpd_' + id, el.value); }); });
+  $('#copy').addEventListener('click', function () {
+    var n = Object.keys(solved).length;
+    var names = { k1tree: '1a Diagram pohon', k1table: '1b Tabel silang', k1count: '1c Banyak paket', k1open: '1d Alasan', k2a: '2a', k2b: '2b', k2c: '2c', k2d: '2d', k3venn: '3a Venn', k3total: '3b', k3why: '3c', k4s1: 'Soal 1', k4s2: 'Soal 2', k4s3: 'Soal 3', k4t: 'Tantangan', k5: 'Simpulan' };
+    var lines = ['E-LKPD Kaidah Pencacahan · Pertemuan 1', 'Nama: ' + ($('#nama').value || '-'), 'Kelompok: ' + ($('#kelompok').value || '-'), 'Soal selesai: ' + n + ' dari ' + TOTAL];
+    lines.push('Selesai: ' + (Object.keys(names).filter(function (k) { return solved[k]; }).map(function (k) { return names[k]; }).join(', ') || '-'));
+    lines.push('Belum: ' + (Object.keys(names).filter(function (k) { return !solved[k]; }).map(function (k) { return names[k]; }).join(', ') || '-'));
+    lines.push('Penilaian diri: ' + RATES.map(function (t, i) { return (rating[i] || '-') ; }).join(' / ') + ' (pohon&tabel / penjumlahan / irisan)');
+    if (solved.k1open) lines.push('Jawaban 1d: ' + $('#k1open').value.trim());
+    var text = lines.join('\n'), box = $('#copybox'), msg = $('#copyfb');
+    box.value = text; box.hidden = false; box.style.minHeight = '150px';
+    function fallback() { box.focus(); box.select(); msg.className = 'fb show'; msg.textContent = 'Ringkasan dipilih. Tekan salin pada perangkatmu lalu tempel ke pesan untuk guru.'; }
+    try { navigator.clipboard.writeText(text).then(function () { msg.className = 'fb show'; msg.textContent = 'Ringkasan tersalin. Tempel ke pesan untuk gurumu.'; }, fallback); } catch (e) { fallback(); }
+  });
+
+  go(1); refresh();
+})();
+</script>
+
+</body></html>
